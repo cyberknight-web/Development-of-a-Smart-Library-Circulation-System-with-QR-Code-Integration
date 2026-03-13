@@ -87,7 +87,7 @@ composer install
 
 Clone the repository:
 
-git clone https://github.com/yourusername/smart-library-system.git
+git clone https://github.com/cyberknight-web/Development-of-a-Smart-Library-Circulation-System-with-QR-Code-Integration
 
 Or download the ZIP file and extract it.
 
