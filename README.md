@@ -1,12 +1,12 @@
 # Smart Library Circulation System with QR Code Integration
 
 ## System Title
-Development of a Smart Library Circulation System with QR Code Integration
+**Development of a Smart Library Circulation System with QR Code Integration**
 
 ---
 
 # Overview
-The Smart Library Circulation System is a web-based system designed to simplify the process of borrowing, claiming, and returning library books using QR Code technology.
+The **Smart Library Circulation System** is a web-based system designed to simplify the process of borrowing, claiming, and returning library books using **QR Code technology**.
 
 Students can search and select books, generate a QR code request, and claim books at the library. The admin verifies book availability, approves requests, scans QR codes, and manages borrowing records.
 
@@ -14,19 +14,19 @@ Students can search and select books, generate a QR code request, and claim book
 
 # Technologies Used
 
-Frontend
+## Frontend
 - HTML5
 - CSS3
 - JavaScript
 
-Backend
+## Backend
 - PHP
 
-Database
+## Database
 - MySQL (XAMPP)
 
-Other Tools
-- Excel (for book data import)
+## Other Tools
+- Microsoft Excel (for book data import)
 - QR Code Generator Library
 - Email Notification System (SMTP / PHP Mail)
 
@@ -35,20 +35,22 @@ Other Tools
 # System Requirements
 
 ## Software Requirements
-
 Please install the following software before running the system:
 
-- XAMPP (Apache and MySQL)
-- Composer (for PHP dependencies)
-- Web Browser (Google Chrome, Edge, or Firefox)
+- **XAMPP** (Apache and MySQL)
+- **Composer** (PHP dependency manager)
+- **Git** (optional, for cloning the repository)
+- **Web Browser** (Google Chrome, Edge, or Firefox)
 
 ## Recommended Versions
 
-- XAMPP: 8.1 or newer
-- PHP: 8.1+
-- MySQL / MariaDB: 10+
-- Composer: 2+
-- Browser: Latest version
+| Software | Version |
+|--------|--------|
+| XAMPP | 8.1 or newer |
+| PHP | 8.1+ |
+| MySQL / MariaDB | 10+ |
+| Composer | 2+ |
+| Browser | Latest version |
 
 ---
 
@@ -56,16 +58,24 @@ Please install the following software before running the system:
 
 Make sure the following extensions are enabled in XAMPP:
 
-- php_openssl
-- php_pdo
-- php_pdo_mysql
-- php_gd
-- php_mbstring
-- php_fileinfo
+- `php_openssl`
+- `php_pdo`
+- `php_pdo_mysql`
+- `php_gd`
+- `php_mbstring`
+- `php_fileinfo`
 
-You can enable them in:
+### Enable Extensions
 
+1. Open the file:
+
+```
 xampp/php/php.ini
+```
+
+2. Remove the `;` before the extension name  
+3. Save the file  
+4. Restart **Apache** in XAMPP
 
 ---
 
@@ -73,11 +83,9 @@ xampp/php/php.ini
 
 This project uses the following PHP library:
 
-- chillerlan/php-qrcode (QR Code generation)
+- `php-qrcode` – QR Code generation
 
-Install dependencies by running:
-
-composer install
+Dependencies are managed using **Composer**.
 
 ---
 
@@ -87,7 +95,9 @@ composer install
 
 Clone the repository:
 
+```bash
 git clone https://github.com/cyberknight-web/Development-of-a-Smart-Library-Circulation-System-with-QR-Code-Integration
+```
 
 Or download the ZIP file and extract it.
 
@@ -95,71 +105,122 @@ Or download the ZIP file and extract it.
 
 ## 2 Move the Project to XAMPP
 
-Move the project folder into the XAMPP htdocs directory.
+Move the project folder into the **XAMPP htdocs directory**.
 
 Example:
 
+```
 C:\xampp\htdocs\smart-library-system
+```
 
 ---
 
-## 3 Start XAMPP
+## 3 Navigate to the Project Directory
 
-Open XAMPP Control Panel and start the following services:
+Open **Command Prompt** or **Terminal** and run:
 
-- Apache
-- MySQL
+```bash
+cd C:\xampp\htdocs\smart-library-system
+```
 
 ---
 
-## 4 Create the Database
+# Dependency Environment Activation
 
-Open phpMyAdmin:
+PHP does not use a traditional **virtual environment** like Python. Instead, **Composer manages a local dependency environment** inside the `vendor/` folder.
 
+Install dependencies by running:
+
+```bash
+composer install
+```
+
+This command will:
+
+- Download required libraries  
+- Create the `vendor/` folder  
+- Generate the `autoload.php` file  
+
+To activate installed dependencies in PHP files, include the Composer autoloader:
+
+```php
+require_once __DIR__ . '/vendor/autoload.php';
+```
+
+Verify installed packages:
+
+```bash
+composer show
+```
+
+Expected package:
+
+```
+php-qrcode
+```
+
+---
+
+# Start the Server
+
+Open **XAMPP Control Panel** and start:
+
+- Apache  
+- MySQL  
+
+---
+
+# Database Setup
+
+## Open phpMyAdmin
+
+```
 http://localhost/phpmyadmin
+```
 
-Create a database named:
+## Create Database
 
+Create a new database named:
+
+```
 smart_library_db
+```
 
-If a SQL file is included, import it into the database.
+If a `.sql` file is included in the project, import it into this database.
 
 ---
 
-## 5 Configure Database Connection
+# Configure Database Connection
 
 Open the database configuration file and update the following settings:
 
-Host: localhost  
-Username: root  
-Password: (leave empty for XAMPP default)  
-Database: smart_library_db  
+```
+Host: localhost
+Username: root
+Password: (leave empty for XAMPP default)
+Database: smart_library_db
+```
+
+Save the configuration file.
 
 ---
 
-## 6 Install Dependencies
-
-Open a terminal in the project folder and run:
-
-composer install
-
-This will install the required PHP libraries.
-
----
-
-## 7 Run the System
+# Run the System
 
 Open your browser and go to:
 
+```
 http://localhost/smart-library-system
+```
+
+The system should now be running.
 
 ---
 
 # System Workflow
 
 ## Book Data Preparation
-
-The admin prepares book data in an Excel file and saves it.  
+The admin prepares book data using **Microsoft Excel** and saves the file.  
 This Excel file will later be imported into the system.
 
 ---
@@ -173,7 +234,8 @@ The first page of the system contains:
 - Password Field
 - Login Button
 
-The admin enters credentials and logs in. If valid, the admin is redirected to the Admin Dashboard.
+The admin enters credentials and logs in.  
+If valid, the admin is redirected to the **Admin Dashboard**.
 
 ---
 
@@ -194,19 +256,19 @@ The Admin Dashboard includes the following sections:
 
 # Importing Books
 
-1. The admin clicks the Import Button  
+1. The admin clicks the **Import Button**  
 2. File Explorer opens  
 3. The admin selects the Excel file  
-4. The system displays "Import Successfully"  
-5. The books appear in the Imported Books page  
+4. The system displays **"Import Successfully"**  
+5. Books appear in the **Imported Books Page**
 
 ---
 
 # Student Borrowing Process
 
-Students click the Borrow Button from the homepage and are redirected to the Student Choose Books page.
+Students click the **Borrow Button** from the homepage.
 
-This page displays:
+They are redirected to the **Student Choose Books Page** which contains:
 
 - Search Bar
 - Add to Shelves Button
@@ -217,9 +279,10 @@ This page displays:
 
 # Book Availability
 
-Available books show a Borrow Button.
-
-Unavailable books display the label "Not Available".
+| Status | Description |
+|------|------|
+| Available | Borrow button is shown |
+| Not Available | Book cannot be borrowed |
 
 ---
 
@@ -233,7 +296,7 @@ Selected books are added to the **Add to Shelves Page**.
 
 # Student Information Form
 
-Students must fill in the following information:
+Students must fill out:
 
 - Name
 - Student ID
@@ -241,28 +304,30 @@ Students must fill in the following information:
 - Section
 - Email
 
-Rules:
+### Rules
 
-- Student ID must be unique
-- Email must be unique
+- Student ID must be **unique**
+- Email must be **unique**
 
 ---
 
 # QR Code Generation
 
-After filling out the form:
+After submitting the form:
 
-1. The student clicks Generate QR Code  
-2. The system generates a QR Code containing the student's information and selected books  
-3. The QR Code appears in a popup window  
+1. Student clicks **Generate QR Code**  
+2. System generates a QR Code containing:
+   - Student information
+   - Selected books
+3. QR Code appears in a popup window  
 
-The student can download or capture the QR Code.
+Students can download or capture the QR Code.
 
 ---
 
 # Admin Borrow Requests
 
-Requests appear on the Admin Dashboard with the following columns:
+Requests appear on the **Admin Dashboard** with the following columns:
 
 - Name
 - Student ID
@@ -277,11 +342,13 @@ Requests appear on the Admin Dashboard with the following columns:
 
 # Book Approval
 
-The admin checks book availability in the Available Books page.
+The admin checks availability in the **Available Books Page**.
 
-If books are available, the admin clicks the Available button.
+If books are available:
 
-The system then sends an email notification to the student.
+- Admin clicks **Available**
+
+The system sends an **email notification** to the student.
 
 ---
 
@@ -289,24 +356,23 @@ The system then sends an email notification to the student.
 
 When the student arrives at the library:
 
-1. The admin clicks QR Scan  
-2. The camera scanner opens  
-3. The student presents the QR Code  
-4. The QR Code is scanned  
+1. Admin clicks **QR Scan**  
+2. Camera scanner opens  
+3. Student presents QR Code  
+4. QR Code is scanned  
 
-The system redirects to the Review Page.
+System redirects to the **Review Page**.
 
-The admin verifies the request and gives the books to the student.
-
-The admin then clicks the Claimed Button.
+Admin verifies and releases the books, then clicks **Claimed Button**.
 
 ---
 
 # Borrowing Rules
 
-Maximum number of books allowed: **3**
-
-Borrowing period: **3 days**
+| Rule | Value |
+|----|----|
+| Maximum books | 3 |
+| Borrowing period | 3 days |
 
 ---
 
@@ -315,16 +381,16 @@ Borrowing period: **3 days**
 When students return books:
 
 1. They present the same QR Code  
-2. The admin scans the QR Code again  
-3. The system redirects to the Return Page  
+2. Admin scans the QR Code  
+3. System redirects to **Return Page**
 
-Returned records are displayed on this page.
+Returned records are displayed.
 
 ---
 
 # Automatic Record Deletion
 
-Returned records are automatically deleted after **2 days**.
+Returned records are **automatically deleted after 2 days**.
 
 ---
 
@@ -356,4 +422,4 @@ Returned records are automatically deleted after **2 days**.
 
 # License
 
-This project is developed for academic and educational purposes.
+This project is developed for **academic and educational purposes**.
