@@ -217,86 +217,154 @@ The system should now be running.
 
 ---
 
-# System Workflow
+# Smart Library Circulation System with QR Code Integration
 
-## Book Data Preparation
-The admin prepares book data using **Microsoft Excel** and saves the file.  
-This Excel file will later be imported into the system.
+## Overview
+The Smart Library Circulation System with QR Code Integration is a web-based library management system designed to simplify the borrowing and returning of books. The system allows administrators to manage book records and student accounts while enabling students to request books and generate QR codes for faster verification and borrowing.
 
----
-
-## Admin Login
-
-The first page of the system contains:
-
-- Borrow Button
-- Username Field
-- Password Field
-- Login Button
-
-The admin enters credentials and logs in.  
-If valid, the admin is redirected to the **Admin Dashboard**.
+The system improves efficiency in library circulation by automating the borrowing workflow, monitoring book availability, and maintaining accurate borrowing records.
 
 ---
 
-# Admin Dashboard Features
+## Features
 
-The Admin Dashboard includes the following sections:
+### Admin Features
+- Admin authentication (Login and Logout)
+- Book management using CSV import
+- Student account management
+- Borrow request monitoring
+- QR code scanning for book claiming
+- Processing returned books
+- Analytics dashboard
 
-- Imported Books
-- Return
+### Student Features
+- Student login system
+- Book search and selection
+- Add books to My Shelves
+- Borrow request submission
+- QR code generation for borrowing
+- View borrowed books
+
+---
+
+## Technologies Used
+
+### Frontend
+- HTML5
+- CSS3
+- JavaScript
+
+### Backend
+- PHP
+
+### Database
+- MySQL (XAMPP)
+
+### Other Tools
+- Composer for PHP dependencies
+- Excel or CSV for book import
+- QR Code Generator Library
+- PHPMailer for email notification
+
+---
+
+## System Requirements
+
+### Software
+- XAMPP (Apache + MySQL)
+- Composer
+- Web Browser (Chrome, Edge, Firefox)
+
+### Recommended Versions
+- XAMPP 8.1+
+- PHP 8.1+
+
+---
+
+## System Flow
+
+### 1. Admin Login and Dashboard Access
+The admin starts on the admin login page and enters a valid username and password. If the credentials are correct, the system redirects the admin to the Admin Dashboard.
+
+The Admin Dashboard shows the following main sections:
+
+- Books
+- Returned
 - QR Scan
-- Import
-- Claimed
-- Review
-- Available Books
+- Students
+- Borrow Request
 - Approved
 
 ---
 
-# Importing Books
-
-1. The admin clicks the **Import Button**  
-2. File Explorer opens  
-3. The admin selects the Excel file  
-4. The system displays **"Import Successfully"**  
-5. Books appear in the **Imported Books Page**
-
----
-
-# Student Borrowing Process
-
-Students click the **Borrow Button** from the homepage.
-
-They are redirected to the **Student Choose Books Page** which contains:
-
-- Search Bar
-- Add to Shelves Button
-- List of imported books
-- Borrow Button beside each book
+### 2. Book Management and CSV Import
+1. The admin clicks the Books button on the Admin Dashboard.
+2. The system opens the Book Management page.
+3. On this page, the admin can download a CSV template for book encoding.
+4. The admin fills in the book data in Excel and saves the file using the .csv format.
+5. To upload the saved file, the admin clicks Import Books.
+6. The File Explorer opens and the admin selects the saved CSV file.
+7. After a successful upload, the system displays the message: “Import Successfully.”
+8. The imported books are then stored in the system and become visible to students during book selection.
 
 ---
 
-# Book Availability
-
-| Status | Description |
-|------|------|
-| Available | Borrow button is shown |
-| Not Available | Book cannot be borrowed |
+### 3. Student Account Creation
+1. Before using the system, the student first coordinates with the librarian or admin to request an account.
+2. The admin clicks the Students button on the Admin Dashboard.
+3. The system redirects the admin to the Create Student Account page.
+4. The admin fills out the student account form using the following details:
+   - Name
+   - Student ID
+   - Course
+   - Section
+   - Email
+   - Username
+   - Password
+5. The Student ID must be unique, and the Email must also be unique for each student.
+6. After completing the form, the admin clicks Save Student Account.
+7. The system stores the account, allowing the student to log in.
 
 ---
 
-# Selecting Books
+### 4. Student Login and Dashboard
+After receiving the account credentials, the student opens the student login page and enters the assigned username and password. If the credentials are valid, the system redirects the student to the Student Dashboard.
 
-Students may select up to **3 books**.
+The Student Dashboard navigation bar contains the following sections:
 
-Selected books are added to the **Add to Shelves Page**.
+- Borrow Books
+- My Shelves
+- My Borrow Books
 
 ---
 
-# Student Information Form
+### 5. Book Selection and Borrow Request
+To borrow books, the student clicks Borrow Books and is redirected to the Choose Books page.
 
-Students must fill out:
+This page displays the following:
+
+- Search bar
+- Active Borrow Books
+- In Your Shelves
+- List of all imported books
+- Add to Shelves button beside each available book
+- View Shelves button
+
+Book availability rules:
+
+- If a book is available, the Add to Shelves button appears and the student may select it.
+- If a book is not available, the system shows Not Available instead of a borrow/select button.
+- The maximum number of books a student can borrow is 3.
+- The borrowing period is limited to 3 days.
+
+For example, if the student wants to borrow three books, the student clicks Add to Shelves beside each available title. The selected books are stored in My Shelves for review before final submission.
+
+---
+
+### 6. My Shelves and QR Code Generation
+The student clicks View Shelves to open the My Shelves page. This page shows the list of selected books and the borrower information form.
+
+The student must confirm or provide the following information:
 
 - Name
 - Student ID
@@ -304,122 +372,60 @@ Students must fill out:
 - Section
 - Email
 
-### Rules
+After checking the selected books and completing the form, the student clicks Generate QR Code. The system creates a QR code in a popup window, which the student may download or save on a phone.
 
-- Student ID must be **unique**
-- Email must be **unique**
-
----
-
-# QR Code Generation
-
-After submitting the form:
-
-1. Student clicks **Generate QR Code**  
-2. System generates a QR Code containing:
-   - Student information
-   - Selected books
-3. QR Code appears in a popup window  
-
-Students can download or capture the QR Code.
+Once the QR code is generated, the student's request details and selected books are submitted to the admin through the Borrow Request section.
 
 ---
 
-# Admin Borrow Requests
-
-Requests appear on the **Admin Dashboard** with the following columns:
+### 7. Admin Review of Borrow Requests
+The admin opens the Borrow Request section to review pending requests. The table contains the following columns:
 
 - Name
 - Student ID
-- Course
-- Section
+- Course/Section
 - Email
-- Books Borrowed
-- Book Quantity
+- QR Token
+- Requested At
 - Action
 
----
+In the Action column, the admin chooses either Available or Not Available.
 
-# Book Approval
+If the requested books are available, the admin clicks Available. The request status is updated from Pending to Approved, and the student may proceed to the library to claim the books.
 
-The admin checks availability in the **Available Books Page**.
-
-If books are available:
-
-- Admin clicks **Available**
-
-The system sends an **email notification** to the student.
+If the requested books are not available, the admin clicks Not Available, and the request is not approved.
 
 ---
 
-# Claiming Books
-
-When the student arrives at the library:
-
-1. Admin clicks **QR Scan**  
-2. Camera scanner opens  
-3. Student presents QR Code  
-4. QR Code is scanned  
-
-System redirects to the **Review Page**.
-
-Admin verifies and releases the books, then clicks **Claimed Button**.
+### 8. Claiming Approved Books Through QR Scan
+1. Once the request is approved, the student goes to the library and presents the generated QR code to the admin.
+2. The admin opens the QR Scan section on the dashboard.
+3. The QR Scan page shows a Start Camera button and a Search Record feature.
+4. The admin scans the student's QR code using the camera scanner.
+5. After scanning, the student's information and borrowing details are displayed.
+6. The system shows the Mark as Claimed button.
+7. The admin clicks Mark as Claimed to confirm that the books were successfully claimed by the student.
 
 ---
 
-# Borrowing Rules
-
-| Rule | Value |
-|----|----|
-| Maximum books | 3 |
-| Borrowing period | 3 days |
-
----
-
-# Returning Books
-
-When students return books:
-
-1. They present the same QR Code  
-2. Admin scans the QR Code  
-3. System redirects to **Return Page**
-
-Returned records are displayed.
+### 9. Returning Borrowed Books
+1. When the student returns the borrowed books, the admin again opens the QR Scan section.
+2. The admin uses Start Camera or Search Record to locate the borrowing record.
+3. After the student's QR code or record is scanned, the borrowing details are displayed.
+4. The system shows the Process Return button.
+5. The admin clicks Process Return to complete the return transaction and update book availability.
 
 ---
 
-# Automatic Record Deletion
-
-Returned records are **automatically deleted after 2 days**.
-
----
-
-# System Pages
-
-- Login Page
-- Student Choose Books Page
-- Add to Shelves Page
-- Admin Dashboard
-- Imported Books Page
-- Available Books Page
-- Review Page
-- Claimed Page
-- Return Page
-- Approved Page
+### 10. Additional System Features
+- Analytics dashboard showing the most borrowed books
+- Summary cards or counters for total books, available books, and total students
+- Admin logout and student logout functions
+- Password update or credential recovery with email verification for both admin and student accounts
 
 ---
 
-# Key Features
+## Summary
+The system begins with admin-controlled book import and student account creation. Students then log in, choose available books, place them in My Shelves, and generate a QR code for their request. The admin reviews each request, approves or rejects it based on availability, scans the QR code during claiming, and later processes the return of borrowed books.
 
-- Excel Book Import
-- QR Code Borrowing System
-- Email Notification
-- QR Code Scanning for Claiming
-- Borrow Limit Control
-- Automatic Record Deletion
-
----
-
-# License
-
-This project is developed for **academic and educational purposes**.
+This flow supports secure borrowing, accurate monitoring, and organized circulation of library materials.
