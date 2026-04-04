@@ -302,10 +302,11 @@ The Admin Dashboard shows the following main sections:
 2. The system opens the Book Management page.
 3. On this page, the admin can download a CSV template for book encoding.
 4. The admin fills in the book data in Excel and saves the file using the .csv format.
-5. To upload the saved file, the admin clicks Import Books.
+5. To upload the saved file, the admin clicks Choose File.
 6. The File Explorer opens and the admin selects the saved CSV file.
-7. After a successful upload, the system displays the message: “Import Successfully.”
-8. The imported books are then stored in the system and become visible to students during book selection.
+7. The admin clicks the import books button.
+8. After a successful upload, the system displays the message: “Books imported successfully from Excel file.”
+9. The imported books are then stored in the system and become visible to students during book selection.
 
 ---
 
