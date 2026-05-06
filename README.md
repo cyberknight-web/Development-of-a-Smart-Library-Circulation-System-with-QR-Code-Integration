@@ -1,432 +1,360 @@
-# Smart Library Circulation System with QR Code Integration
+# 📚 Smart Library Circulation System with QR Code Integration
 
-## System Title
+## 📌 1. System Title
 **Development of a Smart Library Circulation System with QR Code Integration**
 
 ---
 
-# Overview
+# 📖 2. Overview
+
 The **Smart Library Circulation System** is a web-based system designed to simplify the process of borrowing, claiming, and returning library books using **QR Code technology**.
 
-Students can search and select books, generate a QR code request, and claim books at the library. The admin verifies book availability, approves requests, scans QR codes, and manages borrowing records.
+The system provides separate accounts for both **Admins** and **Students**.
+
+Students can create and access their own accounts to browse, search, and borrow available books by adding them to **My Shelves** and generating a QR code request. The admin verifies book availability, approves requests, scans QR codes, and manages borrowing and return records.
 
 ---
 
-# Technologies Used
+# ⚙️ 3. Technologies Used
 
-## Frontend
-- HTML5
-- CSS3
-- JavaScript
+## 🖥️ Frontend
+- HTML5  
+- CSS3  
+- JavaScript  
 
-## Backend
+## 🧠 Backend
+- PHP  
+
+## 🗄️ Database
+- MySQL / MariaDB (XAMPP)  
+
+---
+
+# 💻 4. System Requirements
+
+## 🔧 Software Requirements
+- XAMPP
 - PHP
+- Composer
+- Web Browser (Google Chrome, Microsoft Edge, Firefox)
 
-## Database
-- MySQL (XAMPP)
-
-## Other Tools
-- Microsoft Excel (for book data import)
-- QR Code Generator Library
-- Email Notification System (SMTP / PHP Mail)
-
----
-
-# System Requirements
-
-## Software Requirements
-Please install the following software before running the system:
-
-- **XAMPP** (Apache and MySQL)
-- **Composer** (PHP dependency manager)
-- **Git** (optional, for cloning the repository)
-- **Web Browser** (Google Chrome, Edge, or Firefox)
-
-## Recommended Versions
+## 📊 Recommended Versions
 
 | Software | Version |
-|--------|--------|
-| XAMPP | 8.1 or newer |
+|----------|----------|
+| XAMPP | 8.1+ |
+| Composer | v2.9.7 |
 | PHP | 8.1+ |
-| MySQL / MariaDB | 10+ |
-| Composer | 2+ |
-| Browser | Latest version |
+| Browser | Latest |
 
 ---
 
-# Required PHP Extensions
+# 🚀 6. Installation Guide
 
-Make sure the following extensions are enabled in XAMPP:
+# 🪟 Windows Installation Guide
 
-- `php_openssl`
-- `php_pdo`
-- `php_pdo_mysql`
-- `php_gd`
-- `php_mbstring`
-- `php_fileinfo`
+## 6.0 Download Required Software
 
-### Enable Extensions
-
-1. Open the file:
-
-```
-xampp/php/php.ini
+### PHP
+```plaintext
+https://www.php.net/downloads.php
 ```
 
-2. Remove the `;` before the extension name  
-3. Save the file  
-4. Restart **Apache** in XAMPP
+### Composer
+```plaintext
+https://getcomposer.org/download/
+```
+
+### XAMPP
+```plaintext
+https://www.apachefriends.org/index.html
+```
 
 ---
 
-# Dependencies
+## 6.1 Clone or Download the Project
 
-This project uses the following PHP library:
-
-- `php-qrcode` – QR Code generation
-
-Dependencies are managed using **Composer**.
-
----
-
-# Installation Guide
-
-## 1 Clone or Download the Project
-
-Clone the repository:
+### Clone Using Git
+Open CMD, PowerShell, Git Bash, or VS Code Terminal and run:
 
 ```bash
-git clone https://github.com/cyberknight-web/Development-of-a-Smart-Library-Circulation-System-with-QR-Code-Integration
+git clone https://github.com/cyberknight-web/Development-of-a-Smart-Library-Circulation-System-with-QR-Code-Integration.git
 ```
 
-Or download the ZIP file and extract it.
+### Or Download ZIP File
+Download the ZIP file from GitHub and extract it.
 
 ---
 
-## 2 Move the Project to XAMPP
+## 6.2 Move the Project to XAMPP
 
-Move the project folder into the **XAMPP htdocs directory**.
+Move the project folder to:
+
+```plaintext
+C:\xampp\htdocs
+```
 
 Example:
 
-```
-C:\xampp\htdocs\smart-library-system
-```
-
----
-
-## 3 Navigate to the Project Directory
-
-Open **Command Prompt** or **Terminal** and run:
-
-```bash
-cd C:\xampp\htdocs\smart-library-system
+```plaintext
+C:\xampp\htdocs\smartlibrary
 ```
 
 ---
 
-# Dependency Environment Activation
+## 6.3 Start XAMPP
 
-PHP does not use a traditional **virtual environment** like Python. Instead, **Composer manages a local dependency environment** inside the `vendor/` folder.
+Open **XAMPP Control Panel** and start:
 
-Install dependencies by running:
+- Apache
+- MySQL
+
+---
+
+# 🗃️ 7. Database Setup (Windows)
+
+## 7.1 Open phpMyAdmin
+
+Open your browser and go to:
+
+```plaintext
+http://localhost/phpmyadmin
+```
+
+---
+
+## 7.2 Create Database
+
+Create a new database named:
+
+```plaintext
+smartlibrary
+```
+
+---
+
+## 7.3 Import Database
+
+1. Select `smartlibrary`
+2. Click **Import**
+3. Choose the `smartlibrary.sql` file from the folder you downloaded.
+4. Click **Go**
+
+---
+
+# ⚡ 8. Database Configuration (Windows)
+
+## 8.1 Generate Admin Password Hash
+
+Type this in your browser:
+
+```plaintext
+http://localhost/smartlibrary/generate_admin_hash.php
+```
+
+Copy the generated Hash Code.
+
+---
+
+## 8.2 Insert Admin Account
+
+1. Go to:
+
+```plaintext
+http://localhost/phpmyadmin
+```
+
+2. Click database `smartlibrary`
+3. Open the `admins` table
+4. Click **SQL**
+5. Paste this query:
+
+```sql
+INSERT INTO admins (username, password_hash)
+VALUES ('Evsu123', 'PASTE_THE_HASH_CODE_HERE');
+```
+
+> ⚠️ NOTE: Replace `PASTE_THE_HASH_CODE_HERE` with the generated hash code.
+
+Use the following default admin credentials to log in to the system:
+
+```plaintext
+Username: Evsu123
+Password: Evsu123
+```
+
+---
+
+## 8.3 Install Composer Dependencies
+
+Open CMD, PowerShell, or VS Code Terminal inside the project folder and run:
 
 ```bash
 composer install
 ```
 
-This command will:
-
-- Download required libraries  
-- Create the `vendor/` folder  
-- Generate the `autoload.php` file  
-
-To activate installed dependencies in PHP files, include the Composer autoloader:
-
-```php
-require_once __DIR__ . '/vendor/autoload.php';
-```
-
-Verify installed packages:
-
-```bash
-composer show
-```
-
-Expected package:
-
-```
-php-qrcode
-```
-
 ---
 
-# Start the Server
-
-Open **XAMPP Control Panel** and start:
-
-- Apache  
-- MySQL  
-
----
-
-# Database Setup
-
-## Open phpMyAdmin
-
-```
-http://localhost/phpmyadmin
-```
-
-## Create Database
-
-Create a new database named:
-
-```
-smart_library_db
-```
-
-If a `.sql` file is included in the project, import it into this database.
-
----
-
-# Configure Database Connection
-
-Open the database configuration file and update the following settings:
-
-```
-Host: localhost
-Username: root
-Password: (leave empty for XAMPP default)
-Database: smart_library_db
-```
-
-Save the configuration file.
-
----
-
-# Run the System
+# 🌐 9. Run the System (Windows)
 
 Open your browser and go to:
 
+```plaintext
+http://localhost/smartlibrary
 ```
-http://localhost/smart-library-system
+
+---
+
+# 🍎 macOS Installation Guide
+
+## 10.0 Download Required Software
+
+### XAMPP for macOS
+```plaintext
+https://www.apachefriends.org/index.html
 ```
 
-The system should now be running.
+### PHP
+```plaintext
+https://www.php.net/downloads.php
+```
+
+### Composer
+```plaintext
+https://getcomposer.org/download/
+```
 
 ---
 
-# Smart Library Circulation System with QR Code Integration
+## 10.1 Clone or Download the Project
 
-## Overview
-The Smart Library Circulation System with QR Code Integration is a web-based library management system designed to simplify the borrowing and returning of books. The system allows administrators to manage book records and student accounts while enabling students to request books and generate QR codes for faster verification and borrowing.
+### Clone Using Git
+Open **Terminal** and run:
 
-The system improves efficiency in library circulation by automating the borrowing workflow, monitoring book availability, and maintaining accurate borrowing records.
+```bash
+git clone https://github.com/cyberknight-web/Development-of-a-Smart-Library-Circulation-System-with-QR-Code-Integration.git
+```
 
----
-
-## Features
-
-### Admin Features
-- Admin authentication (Login and Logout)
-- Book management using CSV import
-- Student account management
-- Borrow request monitoring
-- QR code scanning for book claiming
-- Processing returned books
-- Analytics dashboard
-
-### Student Features
-- Student login system
-- Book search and selection
-- Add books to My Shelves
-- Borrow request submission
-- QR code generation for borrowing
-- View borrowed books
+### Or Download ZIP File
+Download the ZIP file from GitHub and extract it.
 
 ---
 
-## Technologies Used
+## 10.2 Move the Project to XAMPP
 
-### Frontend
-- HTML5
-- CSS3
-- JavaScript
+Move the project folder to:
 
-### Backend
-- PHP
+```plaintext
+/Applications/XAMPP/xamppfiles/htdocs
+```
 
-### Database
-- MySQL (XAMPP)
+Example:
 
-### Other Tools
-- Composer for PHP dependencies
-- Excel or CSV for book import
-- QR Code Generator Library
-- PHPMailer for email notification
+```plaintext
+/Applications/XAMPP/xamppfiles/htdocs/smartlibrary
+```
 
 ---
 
-## System Requirements
+## 10.3 Start XAMPP
 
-### Software
-- XAMPP (Apache + MySQL)
-- Composer
-- Web Browser (Chrome, Edge, Firefox)
+Open **XAMPP Manager.app** and start:
 
-### Recommended Versions
-- XAMPP 8.1+
-- PHP 8.1+
+- Apache
+- MySQL
 
 ---
 
-## System Flow
+# 🗃️ 11. Database Setup (macOS)
 
-### 1. Admin Login and Dashboard Access
-The admin starts on the admin login page and enters a valid username and password. If the credentials are correct, the system redirects the admin to the Admin Dashboard.
+## 11.1 Open phpMyAdmin
 
-The Admin Dashboard shows the following main sections:
+Open your browser and go to:
 
-- Books
-- Returned
-- QR Scan
-- Students
-- Borrow Request
-- Approved
+```plaintext
+http://localhost/phpmyadmin
+```
 
 ---
 
-### 2. Book Management and CSV Import
-1. The admin clicks the Books button on the Admin Dashboard.
-2. The system opens the Book Management page.
-3. On this page, the admin can download a CSV template for book encoding.
-4. The admin fills in the book data in Excel and saves the file using the .csv format.
-5. To upload the saved file, the admin clicks Choose File.
-6. The File Explorer opens and the admin selects the saved CSV file.
-7. The admin clicks the import books button.
-8. After a successful upload, the system displays the message: “Books imported successfully from Excel file.”
-9. The imported books are then stored in the system and become visible to students during book selection.
+## 11.2 Create Database
+
+Create a new database named:
+
+```plaintext
+smartlibrary
+```
 
 ---
 
-### 3. Student Account Creation
-1. Before using the system, the student first coordinates with the librarian or admin to request an account.
-2. The admin clicks the Students button on the Admin Dashboard.
-3. The system redirects the admin to the Create Student Account page.
-4. The admin fills out the student account form using the following details:
-   - Name
-   - Student ID
-   - Course
-   - Section
-   - Email
-   - Username
-   - Password
-5. The Student ID must be unique, and the Email must also be unique for each student.
-6. After completing the form, the admin clicks Save Student Account.
-7. The system stores the account, allowing the student to log in.
+## 11.3 Import Database
+
+1. Select `smartlibrary`
+2. Click **Import**
+3. Choose the `smartlibrary.sql` file from the folder you downloaded.
+4. Click **Go**
 
 ---
 
-### 4. Student Login and Dashboard
-After receiving the account credentials, the student opens the student login page and enters the assigned username and password. If the credentials are valid, the system redirects the student to the Student Dashboard.
+# ⚡ 12. Database Configuration (macOS)
 
-The Student Dashboard navigation bar contains the following sections:
+## 12.1 Generate Admin Password Hash
 
-- Borrow Books
-- My Shelves
-- My Borrow Books
+Type this in your browser:
 
----
+```plaintext
+http://localhost/smartlibrary/generate_admin_hash.php
+```
 
-### 5. Book Selection and Borrow Request
-To borrow books, the student clicks Borrow Books and is redirected to the Choose Books page.
-
-This page displays the following:
-
-- Search bar
-- Active Borrow Books
-- In Your Shelves
-- List of all imported books
-- Add to Shelves button beside each available book
-- View Shelves button
-
-Book availability rules:
-
-- If a book is available, the Add to Shelves button appears and the student may select it.
-- If a book is not available, the system shows Not Available instead of a borrow/select button.
-- The maximum number of books a student can borrow is 3.
-- The borrowing period is limited to 3 days.
-
-For example, if the student wants to borrow three books, the student clicks Add to Shelves beside each available title. The selected books are stored in My Shelves for review before final submission.
+Copy the generated Hash Code.
 
 ---
 
-### 6. My Shelves and QR Code Generation
-The student clicks View Shelves to open the My Shelves page. This page shows the list of selected books and the borrower information form.
+## 12.2 Insert Admin Account
 
-The student must confirm or provide the following information:
+1. Go to:
 
-- Name
-- Student ID
-- Course
-- Section
-- Email
+```plaintext
+http://localhost/phpmyadmin
+```
 
-After checking the selected books and completing the form, the student clicks Generate QR Code. The system creates a QR code in a popup window, which the student may download or save on a phone.
+2. Click database `smartlibrary`
+3. Open the `admins` table
+4. Click **SQL**
+5. Paste this query:
 
-Once the QR code is generated, the student's request details and selected books are submitted to the admin through the Borrow Request section.
+```sql
+INSERT INTO admins (username, password_hash)
+VALUES ('Evsu123', 'PASTE_THE_HASH_CODE_HERE');
+```
 
----
+> ⚠️ NOTE: Replace `PASTE_THE_HASH_CODE_HERE` with the generated hash code.
 
-### 7. Admin Review of Borrow Requests
-The admin opens the Borrow Request section to review pending requests. The table contains the following columns:
+Use the following default admin credentials to log in to the system:
 
-- Name
-- Student ID
-- Course/Section
-- Email
-- QR Token
-- Requested At
-- Action
-
-In the Action column, the admin chooses either Available or Not Available.
-
-If the requested books are available, the admin clicks Available. The request status is updated from Pending to Approved, and the student may proceed to the library to claim the books.
-
-If the requested books are not available, the admin clicks Not Available, and the request is not approved.
+```plaintext
+Username: Evsu123
+Password: Evsu123
+```
 
 ---
 
-### 8. Claiming Approved Books Through QR Scan
-1. Once the request is approved, the student goes to the library and presents the generated QR code to the admin.
-2. The admin opens the QR Scan section on the dashboard.
-3. The QR Scan page shows a Start Camera button and a Search Record feature.
-4. The admin scans the student's QR code using the camera scanner.
-5. After scanning, the student's information and borrowing details are displayed.
-6. The system shows the Mark as Claimed button.
-7. The admin clicks Mark as Claimed to confirm that the books were successfully claimed by the student.
+## 12.3 Install Composer Dependencies
+
+Open Terminal and run:
+
+```bash
+cd /Applications/XAMPP/xamppfiles/htdocs/smartlibrary
+composer install
+```
 
 ---
 
-### 9. Returning Borrowed Books
-1. When the student returns the borrowed books, the admin again opens the QR Scan section.
-2. The admin uses Start Camera or Search Record to locate the borrowing record.
-3. After the student's QR code or record is scanned, the borrowing details are displayed.
-4. The system shows the Process Return button.
-5. The admin clicks Process Return to complete the return transaction and update book availability.
+# 🌐 13. Run the System (macOS)
 
----
+Open your browser and go to:
 
-### 10. Additional System Features
-- Analytics dashboard showing the most borrowed books
-- Summary cards or counters for total books, available books, and total students
-- Admin logout and student logout functions
-- Password update or credential recovery with email verification for both admin and student accounts
+```plaintext
+http://localhost/smartlibrary
+```
 
----
-
-## Summary
-The system begins with admin-controlled book import and student account creation. Students then log in, choose available books, place them in My Shelves, and generate a QR code for their request. The admin reviews each request, approves or rejects it based on availability, scans the QR code during claiming, and later processes the return of borrowed books.
-
-This flow supports secure borrowing, accurate monitoring, and organized circulation of library materials.
