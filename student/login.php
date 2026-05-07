@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <style>
         :root { --sl-primary: <?php echo COLOR_PRIMARY; ?>; --sl-accent: <?php echo COLOR_ACCENT; ?>; --sl-light: <?php echo COLOR_LIGHT; ?>; }
-        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: url('<?php echo BASE_URL; ?>/backgroundsmart.jpg') no-repeat center center fixed; background-size: cover; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: url('<?php echo BASE_URL; ?>/assets/images/backgroundsmart.jpg') no-repeat center center fixed; background-size: cover; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
         .login-card { max-width: 420px; width: 100%; border-radius: 16px; border: none; box-shadow: 0 18px 45px rgba(0, 0, 0, 0.15); overflow: hidden; }
         .login-header { background: linear-gradient(135deg, var(--sl-primary), #4a0000); color: var(--sl-light); padding: 1.5rem 1.75rem; }
         .login-header h1 { font-size: 1.5rem; margin: 0; }

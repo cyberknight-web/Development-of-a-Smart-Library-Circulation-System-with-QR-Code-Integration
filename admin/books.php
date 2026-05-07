@@ -52,6 +52,8 @@ if ($status === 'import_success') {
     $status_alert = 'success';
 } elseif ($status === 'import_error') {
     $status_message = 'There was a problem importing the Excel file.';
+} elseif ($status === 'invalid_format') {
+    $status_message = 'There was a problem with the file.';
 } elseif ($status === 'updated') {
     $status_message = 'Book updated successfully.';
     $status_alert = 'success';
