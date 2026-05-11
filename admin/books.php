@@ -48,7 +48,7 @@ $status = $_GET['status'] ?? null;
 $status_message = null;
 $status_alert = 'danger';
 if ($status === 'import_success') {
-    $status_message = 'Books imported successfully from Excel file.';
+    $status_message = 'Books imported successfully from CSV file.';
     $status_alert = 'success';
 } elseif ($status === 'import_error') {
     $status_message = 'There was a problem with the file.';
