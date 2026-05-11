@@ -192,6 +192,94 @@ Open CMD, PowerShell, or VS Code Terminal inside the project folder and run:
 ```bash
 composer install
 ```
+---
+
+# 📧 8.4 Configure Gmail App Password (Required for Email Notifications)
+
+The system uses Gmail SMTP to send email notifications.
+
+## Step 1 — Enable 2-Step Verification
+
+Go to your Google Account Security settings:
+
+```plaintext
+https://myaccount.google.com/security
+```
+
+Enable:
+
+- 2-Step Verification
+
+---
+
+## Step 2 — Generate Gmail App Password
+
+After enabling 2-Step Verification:
+
+1. Go to:
+
+```plaintext
+https://myaccount.google.com/apppasswords
+```
+
+2. Select:
+
+- App → Mail
+- Device → Windows Computer (or Custom Name)
+
+3. Click **Generate**
+
+Google will provide a 16-character App Password.
+
+Example:
+
+```plaintext
+abcd efgh ijkl mnop
+```
+
+---
+
+## Step 3 — Open `config.php`
+
+Open:
+
+```plaintext
+config.php
+```
+
+Find this code:
+
+```php
+const MAIL_SMTP_USER = 'your_email@gmail.com';
+const MAIL_SMTP_PASS = 'your_app_password';
+```
+
+Replace it with your own Gmail and App Password:
+
+```php
+const MAIL_SMTP_USER = 'youremail@gmail.com';
+const MAIL_SMTP_PASS = 'your_generated_app_password';
+```
+
+Example:
+
+```php
+const MAIL_SMTP_USER = 'sample@gmail.com';
+const MAIL_SMTP_PASS = 'abcdefghijklmnop';
+```
+
+> ⚠️ IMPORTANT:
+> Never share your Gmail App Password publicly or upload it to GitHub.
+
+---
+
+## Step 4 — Save the File
+
+Save `config.php`.
+
+The system can now send email notifications using Gmail SMTP.
+
+---
 
 ---
 
