@@ -66,7 +66,7 @@ if (!$tmp_path || !is_uploaded_file($tmp_path)) {
 
 $extension = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
 if ($extension !== 'csv') {
-    header('Location: ' . BASE_URL . '/admin/books.php?status=import_error');
+    header('Location: ' . BASE_URL . '/admin/books.php?status=invalid_format');
     exit;
 }
 
@@ -76,7 +76,35 @@ if ($handle === false) {
     exit;
 }
 
-fgetcsv($handle);
+// Validate CSV header row
+$header = fgetcsv($handle);
+if ($header === false || count($header) < 9) {
+    fclose($handle);
+    header('Location: ' . BASE_URL . '/admin/books.php?status=invalid_format');
+    exit;
+}
+
+$expected_headers = [
+    'accession_no',
+    'isbn',
+    'title',
+    'author',
+    'publisher',
+    'publication_year',
+    'category',
+    'location',
+    'copies',
+];
+
+// Trim and normalize headers
+$header = array_map('strtolower', array_map('trim', $header));
+for ($i = 0; $i < count($expected_headers); $i++) {
+    if (($header[$i] ?? '') !== $expected_headers[$i]) {
+        fclose($handle);
+        header('Location: ' . BASE_URL . '/admin/books.php?status=invalid_format');
+        exit;
+    }
+}
 
 $pdo = db_connect();
 $pdo->beginTransaction();
