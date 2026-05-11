@@ -330,7 +330,7 @@ admin_render_header('Books Management');
                                 <?php else: ?>
                                     <tr>
                                         <td colspan="6" class="text-center text-muted">
-                                            <?php echo $search_books !== '' ? 'No books match your search. Try a different term or clear search.' : 'No books found. Please import an Excel file.'; ?>
+                                            <?php echo $search_books !== '' ? 'No books match your search. Try a different term or clear search.' : 'No books found. Please import a file.'; ?>
                                         </td>
                                     </tr>
                                 <?php endif; ?>
