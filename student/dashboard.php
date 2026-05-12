@@ -12,6 +12,8 @@ require_student_login();
 
 $pdo = db_connect();
 $student_id = (int)$_SESSION['student_id'];
+$show_login_success = !empty($_SESSION['student_login_success']);
+unset($_SESSION['student_login_success']);
 
 // Pending/approved/claimed requests (not returned) for this student, with book titles per request
 $stmt = $pdo->prepare(
@@ -132,7 +134,32 @@ student_render_header('Dashboard');
         border-radius: 999px;
         padding: 0.35rem 0.55rem;
     }
+    .sl-login-success {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(25, 135, 84, 0.2);
+        border-left: 4px solid #198754;
+        background: #f2fbf6;
+        color: #0f5132;
+        box-shadow: 0 10px 24px rgba(25, 135, 84, 0.12);
+    }
+    #login-confetti {
+        position: fixed;
+        inset: 0;
+        z-index: 1080;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
 </style>
+
+<?php if ($show_login_success): ?>
+<canvas id="login-confetti" aria-hidden="true"></canvas>
+<div class="alert sl-login-success alert-dismissible fade show mb-4" role="alert">
+    <strong>Login successful. Welcome!</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<?php endif; ?>
 
 <div class="row mb-4">
     <div class="col-12">
@@ -226,6 +253,87 @@ student_render_header('Dashboard');
         </div>
     </div>
 </div>
+<?php endif; ?>
+
+<?php if ($show_login_success): ?>
+<script>
+    (function () {
+        const canvas = document.getElementById('login-confetti');
+        if (!canvas) {
+            return;
+        }
+
+        const context = canvas.getContext('2d');
+        const colors = ['#800000', '#ffc85c', '#198754', '#0d6efd', '#ffffff'];
+        const pieces = [];
+        const pieceCount = 130;
+        let animationFrame;
+        let startTime;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createPiece() {
+            return {
+                x: Math.random() * canvas.width,
+                y: -20 - Math.random() * canvas.height * 0.35,
+                size: 6 + Math.random() * 8,
+                speed: 2 + Math.random() * 4,
+                drift: -1.5 + Math.random() * 3,
+                rotation: Math.random() * Math.PI * 2,
+                rotationSpeed: -0.12 + Math.random() * 0.24,
+                color: colors[Math.floor(Math.random() * colors.length)]
+            };
+        }
+
+        function draw(timestamp) {
+            if (!startTime) {
+                startTime = timestamp;
+            }
+
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            pieces.forEach(function (piece) {
+                piece.y += piece.speed;
+                piece.x += piece.drift;
+                piece.rotation += piece.rotationSpeed;
+
+                context.save();
+                context.translate(piece.x, piece.y);
+                context.rotate(piece.rotation);
+                context.fillStyle = piece.color;
+                context.fillRect(-piece.size / 2, -piece.size / 2, piece.size, piece.size * 0.55);
+                context.restore();
+            });
+
+            if (timestamp - startTime < 2600) {
+                animationFrame = window.requestAnimationFrame(draw);
+                return;
+            }
+
+            window.cancelAnimationFrame(animationFrame);
+            canvas.remove();
+            window.removeEventListener('resize', resizeCanvas);
+        }
+
+        const successAlert = document.querySelector('.sl-login-success');
+        if (successAlert) {
+            window.setTimeout(function () {
+                const alertInstance = bootstrap.Alert.getOrCreateInstance(successAlert);
+                alertInstance.close();
+            }, 5000);
+        }
+
+        resizeCanvas();
+        for (let i = 0; i < pieceCount; i += 1) {
+            pieces.push(createPiece());
+        }
+        window.addEventListener('resize', resizeCanvas);
+        animationFrame = window.requestAnimationFrame(draw);
+    })();
+</script>
 <?php endif; ?>
 
 <?php
