@@ -38,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $student['email'],
                 $student['username']
             );
+            $_SESSION['student_login_success'] = true;
             header('Location: ' . BASE_URL . '/student/dashboard.php');
             exit;
         }
