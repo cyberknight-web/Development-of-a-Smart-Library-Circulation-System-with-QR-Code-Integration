@@ -56,7 +56,7 @@ Students can create and access their own accounts to browse, search, and borrow 
 ## 6.0 Download Required Software
 
 ### PHP
-copy and paste 
+copy and paste  and then Click “Zip” under “VS17 x64 Non Thread Safe”
 ```plaintext
 https://www.php.net/downloads.php
 ```
