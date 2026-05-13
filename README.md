@@ -556,7 +556,7 @@ VALUES ('Evsu123', 'PASTE_THE_HASH_CODE_HERE');
 Use the following default admin credentials to log in to the system:
 
 ```plaintext
-Username: Evsu12345
+Username: Evsu123
 Password: Evsu12345
 ```
 
@@ -1089,7 +1089,7 @@ VALUES ('Evsu123', 'PASTE_THE_HASH_CODE_HERE');
 Use the following default admin credentials to log in to the system:
 
 ```plaintext
-Username: Evsu12345
+Username: Evsu123
 Password: Evsu12345
 ```
 
