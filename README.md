@@ -56,16 +56,19 @@ Students can create and access their own accounts to browse, search, and borrow 
 ## 6.0 Download Required Software
 
 ### PHP
+copy and paste 
 ```plaintext
 https://www.php.net/downloads.php
 ```
 
 ### Composer
+copy and paste 
 ```plaintext
 https://getcomposer.org/download/
 ```
 
 ### XAMPP
+copy and paste 
 ```plaintext
 https://www.apachefriends.org/index.html
 ```
