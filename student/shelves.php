@@ -166,7 +166,7 @@ if ($shelves_error === 'cart'): ?>
             <div class="card-body">
                 <h5 class="card-title fw-semibold mb-3 sl-shelves-title"><span class="dot"></span>Borrow Form</h5>
                 <p class="text-muted small">Your details (from your account). Click Generate QR Code to create your borrow request.</p>
-                <form method="post" action="<?php echo BASE_URL; ?>/student/borrow_submit.php" class="sl-borrow-form">
+                <form method="post" action="<?php echo BASE_URL; ?>/student/borrow_submit.php" class="sl-borrow-form" id="borrowRequestForm">
                     <div class="mb-3">
                         <label class="form-label">Name</label>
                         <input type="text" class="form-control" value="<?php echo htmlspecialchars($_SESSION['student_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" readonly>
@@ -205,6 +205,52 @@ if ($shelves_error === 'cart'): ?>
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="borrowConfirmModal" tabindex="-1" aria-labelledby="borrowConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="borrowConfirmModalLabel">Confirm Borrowing Request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to submit this borrowing request?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-sl-primary" id="confirmBorrowRequest">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const borrowRequestForm = document.getElementById('borrowRequestForm');
+        const confirmButton = document.getElementById('confirmBorrowRequest');
+        const modalElement = document.getElementById('borrowConfirmModal');
+        let confirmed = false;
+
+        if (!borrowRequestForm || !confirmButton || !modalElement || typeof bootstrap === 'undefined') {
+            return;
+        }
+
+        const confirmModal = new bootstrap.Modal(modalElement);
+
+        borrowRequestForm.addEventListener('submit', function (event) {
+            if (!confirmed) {
+                event.preventDefault();
+                confirmModal.show();
+            }
+        });
+
+        confirmButton.addEventListener('click', function () {
+            confirmed = true;
+            confirmModal.hide();
+            borrowRequestForm.submit();
+        });
+    });
+</script>
 
 <?php
 /** @noinspection PhpUndefinedFunctionInspection */
