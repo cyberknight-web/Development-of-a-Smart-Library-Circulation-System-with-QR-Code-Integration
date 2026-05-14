@@ -39,7 +39,7 @@ student_render_header('Change Password');
                     <div class="alert alert-success">Your password has been updated successfully.</div>
                 <?php endif; ?>
 
-                <form method="post" action="<?php echo BASE_URL; ?>/student/change_password_action.php">
+                <form method="post" action="<?php echo BASE_URL; ?>/student/change_password_action.php" id="studentChangePasswordForm">
                     <div class="mb-3">
                         <label for="current_password" class="form-label">Current password</label>
                         <div class="input-group">
@@ -93,9 +93,74 @@ student_render_header('Change Password');
     </div>
 </div>
 
-<?php student_render_footer(); ?>
+<div class="modal fade" id="studentUpdatePasswordConfirmModal" tabindex="-1" aria-labelledby="studentUpdatePasswordConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="studentUpdatePasswordConfirmModalLabel">Confirm Password Update</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to update your password?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button" class="btn btn-sl-primary" id="studentConfirmUpdatePassword">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-(function () {
+document.addEventListener('DOMContentLoaded', function () {
+    var changePasswordForm = document.getElementById('studentChangePasswordForm');
+    var confirmButton = document.getElementById('studentConfirmUpdatePassword');
+    var confirmModalEl = document.getElementById('studentUpdatePasswordConfirmModal');
+    var passwordUpdateConfirmed = false;
+    var confirmModal = null;
+
+    if (confirmButton && confirmModalEl && typeof bootstrap !== 'undefined') {
+        confirmModal = new bootstrap.Modal(confirmModalEl);
+    }
+
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', function (event) {
+            if (passwordUpdateConfirmed) {
+                return;
+            }
+
+            event.preventDefault();
+
+            if (confirmModal) {
+                confirmModal.show();
+                return;
+            }
+
+            if (window.confirm('Are you sure you want to update your password?')) {
+                passwordUpdateConfirmed = true;
+                if (changePasswordForm.requestSubmit) {
+                    changePasswordForm.requestSubmit();
+                } else {
+                    changePasswordForm.submit();
+                }
+            }
+        });
+    }
+
+    if (confirmButton && changePasswordForm) {
+        confirmButton.addEventListener('click', function () {
+            passwordUpdateConfirmed = true;
+            if (confirmModal) {
+                confirmModal.hide();
+            }
+            if (changePasswordForm.requestSubmit) {
+                changePasswordForm.requestSubmit();
+            } else {
+                changePasswordForm.submit();
+            }
+        });
+    }
+
     var eyeOpenIcon = '' +
         '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">' +
         '<path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.12 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>' +
@@ -127,5 +192,6 @@ student_render_header('Change Password');
             button.setAttribute('aria-label', (isHidden ? 'Hide ' : 'Show ') + targetId.replace('_', ' '));
         });
     });
-})();
+});
 </script>
+<?php student_render_footer(); ?>
