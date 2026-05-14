@@ -1,0 +1,12 @@
+# Prevent direct script execution in profiles folder
+<FilesMatch "\.php$">
+    Deny from all
+</FilesMatch>
+
+# Allow only image files
+<FilesMatch "\.(jpg|jpeg|png|gif)$">
+    Allow from all
+</FilesMatch>
+
+# Disable directory listing
+Options -Indexes

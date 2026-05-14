@@ -1,0 +1,9 @@
+# Prevent direct script execution in uploads folder
+<FilesMatch "\.php$">
+    Deny from all
+</FilesMatch>
+
+# Allow only image files
+<FilesMatch "\.(jpg|jpeg|png|gif)$">
+    Allow from all
+</FilesMatch>

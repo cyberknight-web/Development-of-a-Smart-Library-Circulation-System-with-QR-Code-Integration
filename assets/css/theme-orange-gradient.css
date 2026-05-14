@@ -1,0 +1,246 @@
+/* ============================================
+   Smart Library Admin - Orange Gradient Theme
+   ============================================
+   
+   INSTRUCTIONS:
+   This is the default theme (already applied in admin pages).
+   
+   If you want to switch to this theme from maroon, make sure:
+   1. The line below is NOT in includes/admin_layout.php <head>:
+      <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/theme-maroon-gradient.css">
+   
+   2. All admin pages should use the default orange colors defined herein.
+   
+   ============================================ */
+
+/* Navbar gradient - orange theme */
+.sl-navbar {
+    background: linear-gradient(90deg, #FF6A00, #FF8C00, #FFA500) !important;
+}
+
+/* Primary buttons - orange theme */
+.btn-sl-primary {
+    background-color: #FF8C00 !important;
+}
+
+.btn-sl-primary:hover {
+    background-color: #FF6A00 !important;
+}
+
+/* Notification badge - orange theme */
+.notification-badge {
+    background-color: #FF6A00 !important;
+    animation: pulse-orange 2s infinite;
+}
+
+@keyframes pulse-orange {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(255, 106, 0, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(255, 106, 0, 0);
+    }
+}
+
+/* Dashboard hero gradient - orange theme */
+.sl-dashboard-hero {
+    background: linear-gradient(90deg, #FF6A00, #FF8C00, #FFA500) !important;
+    box-shadow: 0 10px 24px rgba(255, 106, 0, 0.2) !important;
+}
+
+/* Analytics card - orange theme */
+.sl-analytics-card {
+    border-color: rgba(255, 106, 0, 0.12) !important;
+    background: linear-gradient(145deg, #ffffff, #fff8f3) !important;
+    box-shadow: 0 14px 32px rgba(255, 106, 0, 0.08) !important;
+}
+
+.sl-analytics-card::before {
+    background: radial-gradient(circle at top right, rgba(255, 165, 0, 0.1), transparent 45%) !important;
+}
+
+/* Analytics title dot - orange theme */
+.sl-analytics-title .dot {
+    background: #FF8C00 !important;
+    box-shadow: 0 0 0 4px rgba(255, 106, 0, 0.12) !important;
+}
+
+/* Analytics tabs - orange theme */
+.sl-analytics-tabs {
+    border-bottom-color: rgba(255, 106, 0, 0.14) !important;
+}
+
+.sl-analytics-tabs .nav-link.active {
+    background: rgba(255, 106, 0, 0.12) !important;
+    color: #FF8C00 !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 106, 0, 0.18) !important;
+}
+
+/* Analytics shell - orange theme */
+.sl-chart-shell.sl-analytics-shell {
+    border-color: rgba(255, 106, 0, 0.12) !important;
+    background: linear-gradient(180deg, rgba(255, 106, 0, 0.03), rgba(255, 255, 255, 0.7)), #fff !important;
+}
+
+.sl-chart-shell.sl-analytics-shell canvas {
+    filter: drop-shadow(0 8px 16px rgba(255, 106, 0, 0.12)) !important;
+}
+
+/* Approved hero - orange theme */
+.sl-approved-hero {
+    background: linear-gradient(90deg, #FF6A00, #FF8C00, #FFA500) !important;
+    box-shadow: 0 12px 30px rgba(255, 106, 0, 0.2) !important;
+}
+
+.sl-approved-hero::after {
+    background: radial-gradient(circle at top right, rgba(255, 165, 0, 0.2), transparent 45%) !important;
+}
+
+/* Approved card - orange theme */
+.sl-approved-card {
+    border-color: rgba(255, 106, 0, 0.12) !important;
+    background: linear-gradient(145deg, #ffffff, #fff8f3) !important;
+    box-shadow: 0 12px 28px rgba(255, 106, 0, 0.08) !important;
+}
+
+.sl-approved-card .card-header {
+    background: linear-gradient(160deg, #ffffff, #fff3ed) !important;
+    border-bottom-color: rgba(255, 106, 0, 0.1) !important;
+}
+
+/* Approved count - orange theme */
+.sl-approved-count {
+    border-color: rgba(255, 165, 0, 0.45) !important;
+    background: rgba(255, 165, 0, 0.18) !important;
+    color: #A05000 !important;
+}
+
+/* Approved token - orange theme */
+.sl-approved-token {
+    border-color: rgba(255, 106, 0, 0.12) !important;
+    background: #fff5eb !important;
+    color: #FF8C00 !important;
+}
+
+/* Books hero - orange theme */
+.sl-books-hero {
+    background: linear-gradient(90deg, #FF6A00, #FF8C00, #FFA500) !important;
+    box-shadow: 0 12px 30px rgba(255, 106, 0, 0.2) !important;
+}
+
+.sl-books-hero::after {
+    background: radial-gradient(circle at top right, rgba(255, 165, 0, 0.2), transparent 45%) !important;
+}
+
+/* Books alert - orange theme */
+.sl-books-alert {
+    box-shadow: 0 10px 24px rgba(255, 106, 0, 0.06) !important;
+}
+
+/* Future card - orange theme */
+.sl-future-card {
+    border-color: rgba(255, 106, 0, 0.12) !important;
+    background: linear-gradient(145deg, #ffffff, #fff8f3) !important;
+    box-shadow: 0 12px 28px rgba(255, 106, 0, 0.08) !important;
+}
+
+.sl-future-title .dot {
+    background: #FFA500 !important;
+    box-shadow: 0 0 0 4px rgba(255, 165, 0, 0.22) !important;
+}
+
+/* Search shell - orange theme */
+.sl-search-shell {
+    border-color: rgba(255, 106, 0, 0.12) !important;
+    background: linear-gradient(145deg, #ffffff, #fff8f3) !important;
+    box-shadow: 0 10px 24px rgba(255, 106, 0, 0.06) !important;
+}
+
+.sl-search-shell .form-control,
+.sl-future-card .form-control,
+.sl-future-card .form-select {
+    border-color: rgba(255, 106, 0, 0.18) !important;
+}
+
+.sl-search-shell .form-control:focus,
+.sl-future-card .form-control:focus,
+.sl-future-card .form-select:focus {
+    border-color: #FF8C00 !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 106, 0, 0.14) !important;
+}
+
+/* Borrow hero - orange theme */
+.sl-borrow-hero {
+    background: linear-gradient(90deg, #FF6A00, #FF8C00, #FFA500) !important;
+    box-shadow: 0 12px 30px rgba(255, 106, 0, 0.2) !important;
+}
+
+.sl-borrow-hero::after {
+    background: radial-gradient(circle at top right, rgba(255, 165, 0, 0.2), transparent 45%) !important;
+}
+
+/* Borrow alert and card - orange theme */
+.sl-borrow-alert {
+    box-shadow: 0 10px 24px rgba(255, 106, 0, 0.06) !important;
+}
+
+.sl-borrow-card {
+    border-color: rgba(255, 106, 0, 0.12) !important;
+    background: linear-gradient(145deg, #ffffff, #fff8f3) !important;
+    box-shadow: 0 12px 28px rgba(255, 106, 0, 0.08) !important;
+}
+
+.sl-borrow-title .dot {
+    background: #FFA500 !important;
+    box-shadow: 0 0 0 4px rgba(255, 165, 0, 0.22) !important;
+}
+
+.sl-borrow-chip {
+    border-color: rgba(255, 165, 0, 0.45) !important;
+    background: rgba(255, 165, 0, 0.18) !important;
+    color: #A05000 !important;
+}
+
+/* Returns hero - orange theme */
+.sl-returns-hero {
+    background: linear-gradient(90deg, #FF6A00, #FF8C00, #FFA500) !important;
+    box-shadow: 0 12px 30px rgba(255, 106, 0, 0.2) !important;
+}
+
+.sl-returns-hero::after {
+    background: radial-gradient(circle at top right, rgba(255, 165, 0, 0.2), transparent 45%) !important;
+}
+
+/* Returns card - orange theme */
+.sl-returns-card {
+    border-color: rgba(255, 106, 0, 0.12) !important;
+    background: linear-gradient(145deg, #ffffff, #fff8f3) !important;
+    box-shadow: 0 12px 28px rgba(255, 106, 0, 0.08) !important;
+}
+
+.sl-returns-title .dot {
+    background: #FFA500 !important;
+    box-shadow: 0 0 0 4px rgba(255, 165, 0, 0.22) !important;
+}
+
+.sl-returns-chip {
+    border-color: rgba(255, 165, 0, 0.45) !important;
+    background: rgba(255, 165, 0, 0.18) !important;
+    color: #A05000 !important;
+}
+
+/* QR hero - orange theme */
+.sl-qr-hero {
+    background: linear-gradient(90deg, #FF6A00, #FF8C00, #FFA500) !important;
+    box-shadow: 0 8px 20px rgba(255, 106, 0, 0.15) !important;
+}
+
+.sl-qr-scanner-card .card-title {
+    border-bottom-color: rgba(255, 106, 0, 0.1) !important;
+}
+
+/* QR books table - orange theme */
+.sl-books-table thead {
+    background: linear-gradient(to right, rgba(255, 106, 0, 0.08), rgba(255, 106, 0, 0.04)) !important;
+    border-bottom-color: rgba(255, 106, 0, 0.1) !important;
+}

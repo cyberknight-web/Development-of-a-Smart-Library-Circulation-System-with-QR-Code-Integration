@@ -1,0 +1,15 @@
+# Database files
+*.frm
+*.ibd
+
+# Composer
+vendor/
+
+# Uploads
+uploads/
+
+# Archives
+*.rar
+
+# Logs
+*.log
