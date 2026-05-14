@@ -84,6 +84,11 @@ if ($action === 'upload_picture' || (isset($_FILES['profile_picture']) && $_FILE
                 }
             }
         }
+    } elseif (
+        isset($_FILES['profile_picture'])
+        && in_array((int)$_FILES['profile_picture']['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)
+    ) {
+        $redirect_status = 'size_error';
     } else {
         $redirect_status = 'file_error';
     }
