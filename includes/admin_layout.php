@@ -126,6 +126,9 @@ function admin_render_header(string $page_title = 'Admin'): void
                         <a class="nav-link" href="<?php echo BASE_URL; ?>/admin/approved.php">Approved</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="<?php echo BASE_URL; ?>/admin/claimed.php">Claimed</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="<?php echo BASE_URL; ?>/admin/qr_scan.php">QR Scan</a>
                     </li>
                     <li class="nav-item">
