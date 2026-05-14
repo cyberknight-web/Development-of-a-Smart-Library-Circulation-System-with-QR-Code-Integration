@@ -36,6 +36,21 @@ $stmt = $pdo->prepare(
 $stmt->execute();
 $approved = $stmt->fetchAll();
 
+function format_approved_on(?string $approved_at): string
+{
+    if (!$approved_at) {
+        return 'Approved on: Not recorded';
+    }
+
+    try {
+        $approved_date = new DateTimeImmutable($approved_at, new DateTimeZone(APP_TIMEZONE));
+        return 'Approved on: ' . $approved_date->format('F j, Y g:i A');
+    } catch (Throwable $e) {
+        error_log('Approved date formatting failed: ' . $e->getMessage());
+        return 'Approved on: ' . $approved_at;
+    }
+}
+
 admin_render_header('Approved Borrowers');
 ?>
 
@@ -199,7 +214,7 @@ admin_render_header('Approved Borrowers');
                             <td>
                                 <small class="text-muted">
                                     <i class="bi bi-clock me-1"></i>
-                                    <?php echo htmlspecialchars($r['approved_at'], ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php echo htmlspecialchars(format_approved_on($r['approved_at'] ?? null), ENT_QUOTES, 'UTF-8'); ?>
                                 </small>
                             </td>
                         </tr>
