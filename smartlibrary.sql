@@ -401,6 +401,20 @@ CREATE TABLE `password_reset_tokens` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `student_remember_tokens`
+--
+
+CREATE TABLE `student_remember_tokens` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `student_id` int(10) UNSIGNED NOT NULL,
+  `token_hash` char(64) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `students`
 --
 
@@ -488,6 +502,14 @@ ALTER TABLE `password_reset_tokens`
   ADD KEY `fk_reset_tokens_student` (`student_id`);
 
 --
+-- Indexes for table `student_remember_tokens`
+--
+ALTER TABLE `student_remember_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `token_hash` (`token_hash`),
+  ADD KEY `fk_student_remember_tokens_student` (`student_id`);
+
+--
 -- Indexes for table `students`
 --
 ALTER TABLE `students`
@@ -537,6 +559,12 @@ ALTER TABLE `password_reset_tokens`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `student_remember_tokens`
+--
+ALTER TABLE `student_remember_tokens`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
@@ -574,6 +602,12 @@ ALTER TABLE `borrow_returns_archive`
 --
 ALTER TABLE `password_reset_tokens`
   ADD CONSTRAINT `fk_reset_tokens_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `student_remember_tokens`
+--
+ALTER TABLE `student_remember_tokens`
+  ADD CONSTRAINT `fk_student_remember_tokens_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

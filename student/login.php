@@ -13,12 +13,30 @@ if (student_is_logged_in()) {
 }
 
 $errors = [];
+$max_login_attempts = 3;
+$lockout_seconds = 60;
+$now = time();
+$lockout_remaining_seconds = 0;
+
+if (!isset($_SESSION['student_login_attempts'])) {
+    $_SESSION['student_login_attempts'] = 0;
+}
+
+if (!empty($_SESSION['student_login_locked_until']) && $now >= (int)$_SESSION['student_login_locked_until']) {
+    $_SESSION['student_login_attempts'] = 0;
+    unset($_SESSION['student_login_locked_until']);
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
+    $remember_me = isset($_POST['remember_me']);
+    $locked_until = (int)($_SESSION['student_login_locked_until'] ?? 0);
 
-    if ($username === '' || $password === '') {
+    if ($locked_until > $now) {
+        $lockout_remaining_seconds = $locked_until - $now;
+        $errors[] = 'Too many failed login attempts. Please wait before trying again.';
+    } elseif ($username === '' || $password === '') {
         $errors[] = 'Username and password are required.';
     } else {
         $pdo = db_connect();
@@ -29,6 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $student = $stmt->fetch();
 
         if ($student && password_verify($password, $student['password_hash'])) {
+            session_regenerate_id(true);
+
             student_login(
                 (int)$student['id'],
                 $student['name'],
@@ -38,11 +58,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $student['email'],
                 $student['username']
             );
+
+            if ($remember_me) {
+                student_store_remember_token($pdo, (int)$student['id']);
+            } else {
+                student_delete_current_remember_token($pdo);
+            }
+
             $_SESSION['student_login_success'] = true;
+            $_SESSION['student_login_attempts'] = 0;
+            unset($_SESSION['student_login_locked_until']);
+
             header('Location: ' . BASE_URL . '/student/dashboard.php');
             exit;
         }
-        $errors[] = 'Invalid username or password.';
+        $_SESSION['student_login_attempts']++;
+
+        if ($_SESSION['student_login_attempts'] >= $max_login_attempts) {
+            $_SESSION['student_login_locked_until'] = $now + $lockout_seconds;
+            $lockout_remaining_seconds = $lockout_seconds;
+            $errors[] = 'Too many failed login attempts. Login is temporarily blocked for 1 minute.';
+        } else {
+            $attempts_left = $max_login_attempts - (int)$_SESSION['student_login_attempts'];
+            $errors[] = 'Invalid username or password. Attempts remaining: ' . $attempts_left . '.';
+        }
     }
 }
 ?>
@@ -97,6 +136,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php foreach ($errors as $e): ?>
                     <div><?php echo htmlspecialchars($e, ENT_QUOTES, 'UTF-8'); ?></div>
                 <?php endforeach; ?>
+                <?php if ($lockout_remaining_seconds > 0): ?>
+                    <div>
+                        You can try again in <span id="lockout-countdown"><?php echo (int)$lockout_remaining_seconds; ?></span> seconds.
+                    </div>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
         <form method="post" novalidate>
@@ -113,8 +157,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </button>
                 </div>
             </div>
+            <div class="form-check mb-3">
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="remember_me"
+                    name="remember_me"
+                    value="1"
+                >
+                <label class="form-check-label" for="remember_me">Remember me for 30 days</label>
+            </div>
             <div class="d-grid mb-2">
-                <button type="submit" class="btn btn-sl-primary">Login</button>
+                <button type="submit" class="btn btn-sl-primary" id="login-button" <?php echo $lockout_remaining_seconds > 0 ? 'disabled' : ''; ?>>Login</button>
             </div>
             <div class="text-center">
                 <a href="<?php echo BASE_URL; ?>/student/forgot_password.php">Forgot Password?</a>
@@ -140,6 +194,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             toggleButton.setAttribute('aria-label', isPasswordHidden ? 'Hide password' : 'Show password');
             toggleIcon.textContent = '\u{1F441}';
         });
+
+        const countdown = document.getElementById('lockout-countdown');
+        const loginButton = document.getElementById('login-button');
+
+        if (countdown) {
+            let secondsLeft = parseInt(countdown.textContent, 10);
+
+            const timer = window.setInterval(function () {
+                secondsLeft -= 1;
+
+                if (secondsLeft <= 0) {
+                    countdown.textContent = '0';
+                    if (loginButton) {
+                        loginButton.disabled = false;
+                    }
+                    window.clearInterval(timer);
+                    return;
+                }
+
+                countdown.textContent = String(secondsLeft);
+            }, 1000);
+        }
     })();
 </script>
 </body>
