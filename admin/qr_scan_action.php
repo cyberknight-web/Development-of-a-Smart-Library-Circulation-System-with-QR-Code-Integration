@@ -37,12 +37,12 @@ if ($qr_token !== '') {
     $redirect_url .= '?qr=' . urlencode($qr_token) . '#review-actions';
 }
 
-$now = (new DateTimeImmutable())->format('Y-m-d H:i:s');
+$now = (new DateTimeImmutable('now', new DateTimeZone(APP_TIMEZONE)))->format('Y-m-d H:i:s');
 $admin_id = (int)($_SESSION['admin_id'] ?? 0);
 
 if ($action === 'claimed') {
     if ($request['status'] === 'claimed') {
-        header('Location: ' . $redirect_url);
+        header('Location: ' . BASE_URL . '/admin/claimed.php');
         exit;
     }
     if ($request['status'] !== 'approved') {
@@ -60,6 +60,9 @@ if ($action === 'claimed') {
         ':admin_id' => $admin_id,
         ':id' => $request_id,
     ]);
+
+    header('Location: ' . BASE_URL . '/admin/claimed.php');
+    exit;
 }
 
 if ($action === 'returned') {
