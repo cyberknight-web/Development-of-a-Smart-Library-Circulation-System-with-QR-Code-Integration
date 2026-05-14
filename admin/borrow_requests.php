@@ -179,6 +179,29 @@ admin_render_header('Borrow Requests');
     font-weight: 600;
 }
 
+.sl-qr-token-cell {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.sl-qr-token-value {
+    max-width: 100%;
+    font-size: 0.74rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.sl-copy-message {
+    display: block;
+    min-height: 1rem;
+    margin-top: 0.2rem;
+    color: #198754;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
 @media (max-width: 1199.98px) {
     .sl-borrow-requests-table {
         font-size: clamp(0.72rem, 0.25vw + 0.66rem, 0.82rem);
@@ -290,8 +313,11 @@ admin_render_header('Borrow Requests');
                                 <?php endif; ?>
                             </td>
                             <td data-label="QR Token">
-                                <span class="js-qr-token" data-token="<?php echo htmlspecialchars($r['qr_token'], ENT_QUOTES, 'UTF-8'); ?>">••••••••••</span>
-                                <button type="button" class="btn btn-outline-secondary btn-sm ms-2 js-qr-copy" aria-label="Copy QR token">Copy Token</button>
+                                <div class="sl-qr-token-cell">
+                                    <code class="js-qr-token sl-qr-token-value" data-token="<?php echo htmlspecialchars($r['qr_token'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($r['qr_token'], ENT_QUOTES, 'UTF-8'); ?></code>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm js-qr-copy" aria-label="Copy QR token">Copy</button>
+                                </div>
+                                <span class="sl-copy-message js-copy-message" aria-live="polite"></span>
                             </td>
                             <td data-label="Requested At"><?php echo htmlspecialchars($r['requested_at'], ENT_QUOTES, 'UTF-8'); ?></td>
                             <td data-label="Actions" class="text-center sl-borrow-actions">
@@ -314,7 +340,7 @@ admin_render_header('Borrow Requests');
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="12" class="text-center text-muted">
+                        <td colspan="13" class="text-center text-muted">
                             No pending borrow requests.
                         </td>
                     </tr>
@@ -325,10 +351,6 @@ admin_render_header('Borrow Requests');
     </div>
 </div>
 
-<?php
-admin_render_footer();
-
-?>
 <script>
 (function () {
     var copyButtons = document.querySelectorAll('.js-qr-copy');
@@ -363,7 +385,9 @@ admin_render_footer();
 
     copyButtons.forEach(function (button) {
         button.addEventListener('click', function () {
-            var tokenEl = button.parentElement ? button.parentElement.querySelector('.js-qr-token') : null;
+            var tokenCell = button.closest('td');
+            var tokenEl = tokenCell ? tokenCell.querySelector('.js-qr-token') : null;
+            var messageEl = tokenCell ? tokenCell.querySelector('.js-copy-message') : null;
             if (!tokenEl) {
                 return;
             }
@@ -374,20 +398,28 @@ admin_render_footer();
             }
 
             copyTextToClipboard(rawToken).then(function () {
-                button.textContent = 'Copied!';
+                if (messageEl) {
+                    messageEl.textContent = 'QR Token copied.';
+                }
                 button.classList.remove('btn-outline-secondary');
                 button.classList.add('btn-success');
                 setTimeout(function () {
-                    button.textContent = 'Copy Token';
+                    if (messageEl) {
+                        messageEl.textContent = '';
+                    }
                     button.classList.remove('btn-success');
                     button.classList.add('btn-outline-secondary');
-                }, 1200);
+                }, 1600);
             }).catch(function () {
-                button.textContent = 'Copy Failed';
+                if (messageEl) {
+                    messageEl.textContent = 'Copy failed.';
+                }
                 button.classList.remove('btn-outline-secondary');
                 button.classList.add('btn-danger');
                 setTimeout(function () {
-                    button.textContent = 'Copy Token';
+                    if (messageEl) {
+                        messageEl.textContent = '';
+                    }
                     button.classList.remove('btn-danger');
                     button.classList.add('btn-outline-secondary');
                 }, 1500);
@@ -396,3 +428,6 @@ admin_render_footer();
     });
 })();
 </script>
+<?php
+admin_render_footer();
+?>
