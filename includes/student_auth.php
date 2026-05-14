@@ -208,6 +208,32 @@ function student_get_cart(): array
     return is_array($cart) ? array_slice(array_values($cart), 0, 3) : [];
 }
 
+function student_sync_cart_with_books(PDO $pdo): array
+{
+    $cart = student_get_cart();
+
+    if (empty($cart)) {
+        return [];
+    }
+
+    $placeholders = implode(',', array_fill(0, count($cart), '?'));
+    $stmt = $pdo->prepare("SELECT id FROM books WHERE id IN ($placeholders)");
+    $stmt->execute($cart);
+    $valid_ids = array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+    $valid_lookup = array_fill_keys($valid_ids, true);
+
+    $synced_cart = array_values(array_filter(
+        $cart,
+        fn($book_id) => isset($valid_lookup[(int)$book_id])
+    ));
+
+    if (count($synced_cart) !== count($cart)) {
+        student_set_cart($synced_cart);
+    }
+
+    return $synced_cart;
+}
+
 function student_set_cart(array $book_ids): void
 {
     $_SESSION['borrow_cart'] = array_slice($book_ids, 0, 3);

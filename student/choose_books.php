@@ -12,7 +12,7 @@ require_student_login();
 
 $pdo = db_connect();
 $search = trim($_GET['q'] ?? '');
-$cart = student_get_cart();
+$cart = student_sync_cart_with_books($pdo);
 $student_id = (int)($_SESSION['student_id'] ?? 0);
 
 // Borrowing limit is based on books that are currently not yet returned (pending, approved, or claimed).
