@@ -79,6 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .card { max-width: 420px; border-radius: 12px; border: none; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
         .btn-sl-primary { background-color: var(--sl-primary); color: var(--sl-light); border: none; }
         .btn-sl-primary:hover { background-color: #5c0000; color: var(--sl-light); }
+        .sending-message { display: none; }
+        .sending-message.is-visible { display: block; }
     </style>
 </head>
 <body>
@@ -91,18 +93,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?>
             </div>
         <?php endif; ?>
-        <form method="post">
+        <form method="post" id="forgotPasswordForm">
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" id="email" name="email" required
                        value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
             </div>
+            <div class="alert alert-info py-2 sending-message" id="sendingResetMessage" role="status" aria-live="polite">
+                Sending reset link...
+            </div>
             <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-sl-primary">Send Reset Link</button>
+                <button type="submit" class="btn btn-sl-primary" id="sendResetButton">Send Reset Link</button>
                 <a href="<?php echo BASE_URL; ?>/student/login.php" class="btn btn-outline-secondary">Back to Login</a>
             </div>
         </form>
     </div>
 </div>
+<script>
+    (function () {
+        const form = document.getElementById('forgotPasswordForm');
+        const sendButton = document.getElementById('sendResetButton');
+        const sendingMessage = document.getElementById('sendingResetMessage');
+
+        if (!form || !sendButton || !sendingMessage) {
+            return;
+        }
+
+        form.addEventListener('submit', function () {
+            sendButton.disabled = true;
+            sendingMessage.classList.add('is-visible');
+        });
+    })();
+</script>
 </body>
 </html>
