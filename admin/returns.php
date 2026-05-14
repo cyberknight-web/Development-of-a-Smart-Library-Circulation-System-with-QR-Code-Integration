@@ -27,6 +27,21 @@ $stmt = $pdo->query(
 );
 $returns = $stmt->fetchAll();
 
+function format_returned_on(?string $returned_at): string
+{
+    if (!$returned_at) {
+        return 'Returned on: Not recorded';
+    }
+
+    try {
+        $returned_date = new DateTimeImmutable($returned_at, new DateTimeZone(APP_TIMEZONE));
+        return 'Returned on: ' . $returned_date->format('F j, Y g:i A');
+    } catch (Throwable $e) {
+        error_log('Returned date formatting failed: ' . $e->getMessage());
+        return 'Returned on: ' . $returned_at;
+    }
+}
+
 admin_render_header('Returned Books');
 ?>
 
@@ -157,7 +172,7 @@ admin_render_header('Returned Books');
                                         <span class="text-muted">—</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?php echo htmlspecialchars($r['returned_at'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars(format_returned_on($r['returned_at'] ?? null), ENT_QUOTES, 'UTF-8'); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>

@@ -40,6 +40,21 @@ if ($qr_token !== '') {
     }
 }
 
+function format_qr_returned_on(?string $returned_at): string
+{
+    if (!$returned_at) {
+        return '';
+    }
+
+    try {
+        $returned_date = new DateTimeImmutable($returned_at, new DateTimeZone(APP_TIMEZONE));
+        return 'Returned on: ' . $returned_date->format('F j, Y g:i A');
+    } catch (Throwable $e) {
+        error_log('QR scan returned date formatting failed: ' . $e->getMessage());
+        return 'Returned on: ' . $returned_at;
+    }
+}
+
 admin_render_header('QR Scan');
 ?>
 
@@ -304,6 +319,11 @@ admin_render_header('QR Scan');
                                     <?php echo htmlspecialchars(ucfirst($status), ENT_QUOTES, 'UTF-8'); ?>
                                 </span>
                             </dd>
+
+                            <?php if ($status === 'returned' && !empty($record['returned_at'])): ?>
+                            <dt class="col-md-4">Returned Date/Time</dt>
+                            <dd class="col-md-8"><?php echo htmlspecialchars(format_qr_returned_on($record['returned_at'] ?? null), ENT_QUOTES, 'UTF-8'); ?></dd>
+                            <?php endif; ?>
                             
                             <?php if ($record['notes']): ?>
                             <dt class="col-md-4">📝 Notes</dt>
