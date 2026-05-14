@@ -36,7 +36,7 @@ if (!$request || $request['status'] !== 'pending') {
     exit;
 }
 
-$now = (new DateTimeImmutable())->format('Y-m-d H:i:s');
+$now = (new DateTimeImmutable('now', new DateTimeZone(APP_TIMEZONE)))->format('Y-m-d H:i:s');
 $admin_id = (int)($_SESSION['admin_id'] ?? 0);
 
 if ($action === 'approve') {

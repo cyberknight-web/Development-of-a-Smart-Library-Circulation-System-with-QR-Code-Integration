@@ -35,6 +35,7 @@ $stmt = $pdo->prepare(
      WHERE br.status = 'pending'
      ORDER BY br.requested_at ASC"
 );
+
 $stmt->execute();
 $requests = $stmt->fetchAll();
 
@@ -51,6 +52,7 @@ if ($requests) {
          WHERE bri.borrow_request_id IN ($placeholders)
          ORDER BY b.title ASC"
     );
+
     $book_stmt->execute($request_ids);
 
     foreach ($book_stmt->fetchAll(PDO::FETCH_ASSOC) as $book_row) {
@@ -313,6 +315,7 @@ admin_render_header('Borrow Requests');
                 <span class="dot"></span>
                 Pending Borrow Requests
             </h5>
+
             <span class="sl-borrow-chip">
                 <?php echo count($requests); ?> Pending
             </span>
@@ -499,6 +502,7 @@ admin_render_header('Borrow Requests');
 
             try {
                 var successful = document.execCommand('copy');
+
                 document.body.removeChild(tempInput);
 
                 if (successful) {
