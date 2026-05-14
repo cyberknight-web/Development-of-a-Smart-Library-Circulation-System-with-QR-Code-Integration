@@ -284,7 +284,7 @@ student_render_header('Choose Books');
         <span class="badge bg-danger ms-2">Limit reached</span>
     <?php endif; ?>
     <br>
-    <strong>In your shelves:</strong> <?php echo $cart_count; ?> / <?php echo $remaining_to_borrow; ?> book(s) you can still borrow
+    <strong>In your shelves:</strong> <?php echo $cart_count; ?> / <?php echo $max_books_at_a_time; ?> book(s) you can still borrow
     <?php if (!empty($cart)): ?>
         <a href="<?php echo BASE_URL; ?>/student/shelves.php" class="btn btn-sm btn-sl-primary ms-2">View Shelves &rarr;</a>
     <?php endif; ?>
