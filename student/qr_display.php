@@ -20,7 +20,7 @@ $pdo = db_connect();
 $student_id = (int)$_SESSION['student_id'];
 
 $stmt = $pdo->prepare(
-    "SELECT br.id, br.qr_token, br.status, br.notes, s.name, s.student_id AS student_code, s.course, s.section, s.email
+    "SELECT br.id, br.qr_token, br.status, br.notes, br.requested_at, s.name, s.student_id AS student_code, s.course, s.section, s.email
      FROM borrow_requests br
      JOIN students s ON s.id = br.student_id
      WHERE br.qr_token = :token AND br.student_id = :sid LIMIT 1"
@@ -41,9 +41,33 @@ $items = $stmt_items->fetchAll(PDO::FETCH_ASSOC);
 $qr_url = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' . urlencode($token);
 $qr_download_url = BASE_URL . '/student/qr_download.php?token=' . urlencode($token);
 $qr_claim_url = BASE_URL . '/admin/qr_scan.php?qr=' . urlencode($token);
+$generated_at_display = '';
+$return_due_display = '';
+
+if (!empty($record['requested_at'])) {
+    try {
+        $generated_at = new DateTimeImmutable((string)$record['requested_at'], new DateTimeZone(APP_TIMEZONE));
+        $generated_at_display = $generated_at->format('F j, Y g:i A');
+
+        // The return due date is exactly 3 days after the QR code was generated.
+        $return_due = $generated_at->modify('+3 days');
+        $return_due_display = $return_due->format('F j, Y g:i A');
+    } catch (Throwable $e) {
+        error_log('QR generated date formatting failed: ' . $e->getMessage());
+    }
+}
 
 student_render_header('Your QR Code');
 ?>
+
+<style>
+    .sl-qr-date {
+        color: #343a40;
+        font-size: 1.08rem;
+        font-weight: 700;
+        line-height: 1.35;
+    }
+</style>
 
 <div class="row mb-4">
     <div class="col-12">
@@ -60,6 +84,12 @@ student_render_header('Your QR Code');
             <div class="card-body text-center">
                 <h5 class="card-title mb-3">QR Code</h5>
                 <img src="<?php echo htmlspecialchars($qr_url, ENT_QUOTES, 'UTF-8'); ?>" alt="QR Code" class="img-fluid" id="qrImage" style="max-width: 220px;">
+                <?php if ($generated_at_display !== ''): ?>
+                    <p class="sl-qr-date mt-3 mb-1">Generated on: <?php echo htmlspecialchars($generated_at_display, ENT_QUOTES, 'UTF-8'); ?></p>
+                <?php endif; ?>
+                <?php if ($return_due_display !== ''): ?>
+                    <p class="sl-qr-date mb-2">Return due: <?php echo htmlspecialchars($return_due_display, ENT_QUOTES, 'UTF-8'); ?></p>
+                <?php endif; ?>
                 <p class="small text-muted mt-2 mb-2">Token: <code id="qrToken"><?php echo htmlspecialchars($record['qr_token'], ENT_QUOTES, 'UTF-8'); ?></code></p>
                 <p class="small mb-2">Download or screenshot this page to present at the library.</p>
                 <a
