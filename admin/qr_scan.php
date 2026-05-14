@@ -192,6 +192,15 @@ admin_render_header('QR Scan');
         border-color: #800000;
         box-shadow: 0 0 0 0.2rem rgba(128, 0, 0, 0.1);
     }
+    .sl-qr-loading {
+        display: none;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    .sl-qr-loading.is-visible {
+        display: flex;
+    }
 </style>
 
 <div class="sl-qr-hero">
@@ -234,6 +243,10 @@ admin_render_header('QR Scan');
                         🔍 Search Record
                     </button>
                 </form>
+                <div class="alert alert-info sl-qr-loading" id="qrLoadingMessage" role="status" aria-live="polite">
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span>Fetching borrowing request...</span>
+                </div>
             </div>
         </div>
     </div>
@@ -407,8 +420,15 @@ admin_render_footer();
     var statusEl = document.getElementById('qr-reader-status');
     var btnStart = document.getElementById('btnStartCamera');
     var btnStop = document.getElementById('btnStopCamera');
+    var loadingMessage = document.getElementById('qrLoadingMessage');
 
     var scanner = null;
+
+    function showLoadingMessage() {
+        if (loadingMessage) {
+            loadingMessage.classList.add('is-visible');
+        }
+    }
 
     function stopCamera() {
         if (scanner && scanner.isScanning()) {
@@ -434,6 +454,7 @@ admin_render_footer();
             { fps: 10, qrbox: { width: 250, height: 250 } },
             function(decodedText) {
                 qrInput.value = decodedText;
+                showLoadingMessage();
                 statusEl.innerHTML = '<span style="color: #198754; font-weight: 600;">✓ QR scanned! Loading record...</span>';
                 setTimeout(function() {
                     if (qrForm) {
@@ -458,6 +479,12 @@ admin_render_footer();
 
     btnStart.addEventListener('click', startCamera);
     btnStop.addEventListener('click', stopCamera);
+
+    if (qrForm) {
+        qrForm.addEventListener('submit', function() {
+            showLoadingMessage();
+        });
+    }
 
     window.addEventListener('beforeunload', function() {
         if (scanner && scanner.isScanning()) {
