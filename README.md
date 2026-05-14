@@ -1,432 +1,1116 @@
-# Smart Library Circulation System with QR Code Integration
+# 📚 Smart Library Circulation System with QR Code Integration
 
-## System Title
+## 📌 1. System Title
 **Development of a Smart Library Circulation System with QR Code Integration**
 
 ---
 
-# Overview
+# 📖 2. Overview
+
 The **Smart Library Circulation System** is a web-based system designed to simplify the process of borrowing, claiming, and returning library books using **QR Code technology**.
 
-Students can search and select books, generate a QR code request, and claim books at the library. The admin verifies book availability, approves requests, scans QR codes, and manages borrowing records.
+The system provides separate accounts for both **Admins** and **Students**.
+
+Students can create and access their own accounts to browse, search, and borrow available books by adding them to **My Shelves** and generating a QR code request. The admin verifies book availability, approves requests, scans QR codes, and manages borrowing and return records.
 
 ---
 
-# Technologies Used
+# ⚙️ 3. Technologies Used
 
-## Frontend
-- HTML5
-- CSS3
-- JavaScript
+## 🖥️ Frontend
+- HTML5  
+- CSS3  
+- JavaScript  
 
-## Backend
+## 🧠 Backend
+- PHP  
+
+## 🗄️ Database
+- MySQL / MariaDB (XAMPP)  
+
+---
+
+# 💻 4. System Requirements
+
+## 🔧 Software Requirements
+- XAMPP
 - PHP
+- Composer
+- Web Browser (Google Chrome, Microsoft Edge, Firefox)
 
-## Database
-- MySQL (XAMPP)
-
-## Other Tools
-- Microsoft Excel (for book data import)
-- QR Code Generator Library
-- Email Notification System (SMTP / PHP Mail)
-
----
-
-# System Requirements
-
-## Software Requirements
-Please install the following software before running the system:
-
-- **XAMPP** (Apache and MySQL)
-- **Composer** (PHP dependency manager)
-- **Git** (optional, for cloning the repository)
-- **Web Browser** (Google Chrome, Edge, or Firefox)
-
-## Recommended Versions
+## 📊 Recommended Versions
 
 | Software | Version |
-|--------|--------|
-| XAMPP | 8.1 or newer |
+|----------|----------|
+| XAMPP | 8.1+ |
+| Composer | v2.9.7 |
 | PHP | 8.1+ |
-| MySQL / MariaDB | 10+ |
-| Composer | 2+ |
-| Browser | Latest version |
+| Browser | Latest |
 
 ---
 
-# Required PHP Extensions
+# 🚀 6. Installation Guide
 
-Make sure the following extensions are enabled in XAMPP:
+# 🪟 Windows Installation Guide
 
-- `php_openssl`
-- `php_pdo`
-- `php_pdo_mysql`
-- `php_gd`
-- `php_mbstring`
-- `php_fileinfo`
+## 6.0 Download Required Software
 
-### Enable Extensions
 
-1. Open the file:
+# PHP Installation for Windows
 
-```
-xampp/php/php.ini
+## 1. Download PHP for Windows
+
+Go to the official PHP for Windows download page:
+
+```text
+https://windows.php.net/download/
 ```
 
-2. Remove the `;` before the extension name  
-3. Save the file  
-4. Restart **Apache** in XAMPP
+---
+
+## 2. Choose the Correct PHP File
+
+For most Windows laptops, choose:
+
+```text
+VS17 x64 Non Thread Safe → Zip
+```
+
+Do not choose:
+
+```text
+Download source code
+Download tests package
+Debug Pack
+Development package
+```
 
 ---
 
-# Dependencies
+## 3. Extract the ZIP File
 
-This project uses the following PHP library:
+After downloading the ZIP file:
 
-- `php-qrcode` – QR Code generation
+1. Right-click the ZIP file.
+2. Click **Extract All**.
+3. Rename the extracted folder to:
 
-Dependencies are managed using **Composer**.
+```text
+php
+```
 
 ---
 
-# Installation Guide
+## 4. Move PHP Folder
 
-## 1 Clone or Download the Project
+Move the `php` folder to:
 
-Clone the repository:
+```text
+C:\php
+```
+
+---
+
+## 5. Add PHP to Environment Variables
+
+1. Search **Environment Variables** in Windows Search.
+2. Click **Edit the system environment variables**.
+3. Click **Environment Variables**.
+4. Under **System variables**, find and click **Path**.
+5. Click **Edit**.
+6. Click **New**.
+7. Add this path:
+
+```text
+C:\php
+```
+
+8. Click **OK** to save.
+
+---
+
+## 6. Check PHP Version
+
+Open **Command Prompt** and run:
 
 ```bash
-git clone https://github.com/cyberknight-web/Development-of-a-Smart-Library-Circulation-System-with-QR-Code-Integration
+php -v
 ```
 
-Or download the ZIP file and extract it.
+If the PHP version appears, PHP is installed correctly.
 
 ---
 
-## 2 Move the Project to XAMPP
+## Important Note
 
-Move the project folder into the **XAMPP htdocs directory**.
+If `php -v` does not work:
+
+1. Close Command Prompt.
+2. Open Command Prompt again.
+3. Run:
+
+```bash
+php -v
+```
+
+If it still does not work, check if this path was added correctly:
+
+```text
+C:\php
+```
+
+# Composer Installation for Windows
+
+## 1. Download Composer
+
+Go to the official Composer download page:
+
+```text
+https://getcomposer.org/download/
+```
+
+---
+
+## 2. Download the Windows Installer
+
+Look for and download:
+
+```text
+Composer-Setup.exe
+```
+
+---
+
+## 3. Run the Installer
+
+Open the downloaded file:
+
+```text
+Composer-Setup.exe
+```
+
+Then follow the installation steps.
+
+---
+
+## 4. Select PHP Path
+
+During installation, Composer may ask for your PHP path.
+
+Choose:
+
+```text
+C:\php\php.exe
+```
+
+---
+
+## 5. Finish Installation
+
+Click **Next** until the installation is complete.
+
+---
+
+## 6. Restart Command Prompt
+
+Close your current Command Prompt or terminal.
+
+Then open a new **Command Prompt**.
+
+---
+
+## 7. Check Composer Version
+
+Run this command:
+
+```bash
+composer -V
+```
+
+If the Composer version appears, Composer is installed correctly.
+
+---
+
+## Important Note
+
+Composer needs PHP to work.
+
+If Composer cannot find PHP, make sure this file exists:
+
+```text
+C:\php\php.exe
+```
+
+Also make sure PHP is added to your Windows Path:
+
+```text
+C:\php
+```
+
+Then open a new Command Prompt and check again:
+
+```bash
+composer -V
+```
+
+# XAMPP Installation for Windows
+
+## 1. Download XAMPP
+
+Go to the official XAMPP download page:
+
+```text
+https://www.apachefriends.org/download.html
+```
+
+---
+
+## 2. Choose XAMPP for Windows
+
+Look for:
+
+```text
+XAMPP for Windows
+```
+
+Then download the installer.
+
+The file usually looks like:
+
+```text
+xampp-windows-x64-installer.exe
+```
+
+---
+
+## 3. Run the Installer
+
+Open the downloaded installer.
+
+If Windows asks for permission, click:
+
+```text
+Yes
+```
+
+---
+
+## 4. Choose Components
+
+During installation, you can keep the default selected components.
+
+Make sure these are included:
+
+```text
+Apache
+MySQL
+PHP
+phpMyAdmin
+```
+
+Then click:
+
+```text
+Next
+```
+
+---
+
+## 5. Choose Installation Folder
+
+The default installation folder is usually:
+
+```text
+C:\xampp
+```
+
+You can keep this default folder.
+
+Then click:
+
+```text
+Next
+```
+
+---
+
+## 6. Finish Installation
+
+Continue clicking:
+
+```text
+Next
+```
+
+Wait for the installation to finish.
+
+Then click:
+
+```text
+Finish
+```
+
+---
+
+## 7. Open XAMPP Control Panel
+
+Open:
+
+```text
+XAMPP Control Panel
+```
+
+You can search it in the Windows Start Menu.
+
+---
+
+## 8. Start Apache and MySQL
+
+In the XAMPP Control Panel, click **Start** for:
+
+```text
+Apache
+MySQL
+```
+
+Make sure their status turns green or shows:
+
+```text
+Running
+```
+
+---
+
+## 9. Test XAMPP in Browser
+
+Open your browser and go to:
+
+```text
+http://localhost
+```
+
+or:
+
+```text
+http://localhost/dashboard
+```
+
+If the XAMPP dashboard appears, XAMPP is installed correctly.
+
+---
+
+## 10. Put Your PHP Files in htdocs
+
+Your PHP project files should be placed inside:
+
+```text
+C:\xampp\htdocs
+```
 
 Example:
 
+```text
+C:\xampp\htdocs\myproject
 ```
-C:\xampp\htdocs\smart-library-system
+
+Then open it in your browser:
+
+```text
+http://localhost/myproject
 ```
 
 ---
 
-## 3 Navigate to the Project Directory
+## Important Note
 
-Open **Command Prompt** or **Terminal** and run:
+If Apache does not start, another app may be using port 80.
+
+Common apps that may cause this:
+
+```text
+Skype
+IIS
+Other web servers
+```
+
+You can close the other app or change the Apache port in XAMPP.
+
+---
+
+## Check PHP in XAMPP
+
+Open Command Prompt and run:
 
 ```bash
-cd C:\xampp\htdocs\smart-library-system
+C:\xampp\php\php.exe -v
+```
+
+If the PHP version appears, XAMPP PHP is working.
+
+---
+
+## 6.1 Clone or Download the Project
+
+### Clone Using Git
+Open CMD, PowerShell, Git Bash, or VS Code Terminal and run:
+
+```bash
+git clone https://github.com/cyberknight-web/Development-of-a-Smart-Library-Circulation-System-with-QR-Code-Integration.git
+```
+
+### Or Download ZIP File
+Download the ZIP file from GitHub and extract it.
+
+---
+
+## 6.2 Move the Project to XAMPP
+
+Move the project folder to:
+
+```plaintext
+C:\xampp\htdocs
+```
+
+Example:
+
+```plaintext
+C:\xampp\htdocs\smartlibrary
 ```
 
 ---
 
-# Dependency Environment Activation
+## 6.3 Start XAMPP
 
-PHP does not use a traditional **virtual environment** like Python. Instead, **Composer manages a local dependency environment** inside the `vendor/` folder.
+Open **XAMPP Control Panel** and start:
 
-Install dependencies by running:
+- Apache
+- MySQL
+
+---
+
+# 🗃️ 7. Database Setup (Windows)
+
+## 7.1 Open phpMyAdmin
+
+Open your browser and go to:
+
+```plaintext
+http://localhost/phpmyadmin
+```
+
+---
+
+## 7.2 Create Database
+
+Create a new database named:
+
+```plaintext
+smartlibrary
+```
+
+---
+
+## 7.3 Import Database
+
+1. Select `smartlibrary`
+2. Click **Import**
+3. Choose the `smartlibrary.sql` file from the folder you downloaded.
+4. Click **Go**
+
+---
+
+# ⚡ 8. Database Configuration (Windows)
+
+## 8.1 Generate Admin Password Hash
+
+Type this in your browser:
+
+```plaintext
+http://localhost/smartlibrary/generate_admin_hash.php
+```
+
+Copy the generated Hash Code.
+
+---
+
+## 8.2 Insert Admin Account
+
+1. Go to:
+
+```plaintext
+http://localhost/phpmyadmin
+```
+
+2. Click database `smartlibrary`
+3. Open the `admins` table
+4. Click **SQL**
+5. Paste this query:
+
+```sql
+INSERT INTO admins (username, password_hash)
+VALUES ('Evsu123', 'PASTE_THE_HASH_CODE_HERE');
+```
+
+> ⚠️ NOTE: Replace `PASTE_THE_HASH_CODE_HERE` with the generated hash code.
+
+Use the following default admin credentials to log in to the system:
+
+```plaintext
+Username: Evsu123
+Password: Evsu12345
+```
+
+---
+
+## 8.3 Install Composer Dependencies
+
+Open CMD, PowerShell, or VS Code Terminal inside the project folder and run:
 
 ```bash
 composer install
 ```
+---
 
-This command will:
+# 📧 8.4 Configure Gmail App Password (Required for Email Notifications)
 
-- Download required libraries  
-- Create the `vendor/` folder  
-- Generate the `autoload.php` file  
+The system uses Gmail SMTP to send email notifications.
 
-To activate installed dependencies in PHP files, include the Composer autoloader:
+## Step 1 — Enable 2-Step Verification
+
+Go to your Google Account Security settings:
+
+```plaintext
+https://myaccount.google.com/security
+```
+
+Enable:
+
+- 2-Step Verification
+
+---
+
+## Step 2 — Generate Gmail App Password
+
+After enabling 2-Step Verification:
+
+1. Go to:
+
+```plaintext
+https://myaccount.google.com/apppasswords
+```
+
+2. Select:
+
+- App → Mail
+- Device → Windows Computer (or Custom Name)
+
+3. Click **Generate**
+
+Google will provide a 16-character App Password.
+
+Example:
+
+```plaintext
+abcd efgh ijkl mnop
+```
+
+---
+
+## Step 3 — Open `config.php`
+
+Open:
+
+```plaintext
+config.php
+```
+
+Find this code:
 
 ```php
-require_once __DIR__ . '/vendor/autoload.php';
+const MAIL_SMTP_USER = 'your_email@gmail.com';
+const MAIL_SMTP_PASS = 'your_app_password';
 ```
 
-Verify installed packages:
+Replace it with your own Gmail and App Password:
 
-```bash
-composer show
+```php
+const MAIL_SMTP_USER = 'youremail@gmail.com';
+const MAIL_SMTP_PASS = 'your_generated_app_password';
 ```
 
-Expected package:
+Example:
 
+```php
+const MAIL_SMTP_USER = 'sample@gmail.com';
+const MAIL_SMTP_PASS = 'abcdefghijklmnop';
 ```
-php-qrcode
-```
+
+> ⚠️ IMPORTANT:
+> Never share your Gmail App Password publicly or upload it to GitHub.
 
 ---
 
-# Start the Server
+## Step 4 — Save the File
 
-Open **XAMPP Control Panel** and start:
+Save `config.php`.
 
-- Apache  
-- MySQL  
-
----
-
-# Database Setup
-
-## Open phpMyAdmin
-
-```
-http://localhost/phpmyadmin
-```
-
-## Create Database
-
-Create a new database named:
-
-```
-smart_library_db
-```
-
-If a `.sql` file is included in the project, import it into this database.
+The system can now send email notifications using Gmail SMTP.
 
 ---
 
-# Configure Database Connection
-
-Open the database configuration file and update the following settings:
-
-```
-Host: localhost
-Username: root
-Password: (leave empty for XAMPP default)
-Database: smart_library_db
-```
-
-Save the configuration file.
-
 ---
 
-# Run the System
+# 🌐 9. Run the System (Windows)
 
 Open your browser and go to:
 
+```plaintext
+http://localhost/smartlibrary
 ```
-http://localhost/smart-library-system
+
+---
+
+# 🍎 macOS Installation Guide
+
+## 10.0 Download Required Software
+
+### XAMPP for macOS
+```plaintext
+https://www.apachefriends.org/index.html
+```
+# XAMPP Installation for Mac
+
+## 1. Download XAMPP for Mac
+
+Go to the official XAMPP download page:
+
+```text
+https://www.apachefriends.org/download.html
 ```
 
-The system should now be running.
+Look for:
+
+```text
+XAMPP for OS X / macOS
+```
+
+Then download the Mac installer.
 
 ---
 
-# Smart Library Circulation System with QR Code Integration
+## 2. Open the Installer
 
-## Overview
-The Smart Library Circulation System with QR Code Integration is a web-based library management system designed to simplify the borrowing and returning of books. The system allows administrators to manage book records and student accounts while enabling students to request books and generate QR codes for faster verification and borrowing.
+After downloading, open the downloaded file.
 
-The system improves efficiency in library circulation by automating the borrowing workflow, monitoring book availability, and maintaining accurate borrowing records.
+It usually looks like:
 
----
+```text
+xampp-osx-installer.dmg
+```
 
-## Features
-
-### Admin Features
-- Admin authentication (Login and Logout)
-- Book management using CSV import
-- Student account management
-- Borrow request monitoring
-- QR code scanning for book claiming
-- Processing returned books
-- Analytics dashboard
-
-### Student Features
-- Student login system
-- Book search and selection
-- Add books to My Shelves
-- Borrow request submission
-- QR code generation for borrowing
-- View borrowed books
+Then follow the installation steps.
 
 ---
 
-## Technologies Used
+## 3. Install XAMPP
 
-### Frontend
-- HTML5
-- CSS3
-- JavaScript
+Click **Next** until the installation starts.
 
-### Backend
-- PHP
+Wait for the installation to finish.
 
-### Database
-- MySQL (XAMPP)
+XAMPP will usually be installed in:
 
-### Other Tools
-- Composer for PHP dependencies
-- Excel or CSV for book import
-- QR Code Generator Library
-- PHPMailer for email notification
+```text
+/Applications/XAMPP
+```
 
 ---
 
-## System Requirements
+## 4. Open XAMPP Manager
 
-### Software
-- XAMPP (Apache + MySQL)
-- Composer
-- Web Browser (Chrome, Edge, Firefox)
+Open Finder, then go to:
 
-### Recommended Versions
-- XAMPP 8.1+
-- PHP 8.1+
+```text
+Applications > XAMPP
+```
 
----
+Open:
 
-## System Flow
-
-### 1. Admin Login and Dashboard Access
-The admin starts on the admin login page and enters a valid username and password. If the credentials are correct, the system redirects the admin to the Admin Dashboard.
-
-The Admin Dashboard shows the following main sections:
-
-- Books
-- Returned
-- QR Scan
-- Students
-- Borrow Request
-- Approved
+```text
+manager-osx.app
+```
 
 ---
 
-### 2. Book Management and CSV Import
-1. The admin clicks the Books button on the Admin Dashboard.
-2. The system opens the Book Management page.
-3. On this page, the admin can download a CSV template for book encoding.
-4. The admin fills in the book data in Excel and saves the file using the .csv format.
-5. To upload the saved file, the admin clicks Choose File.
-6. The File Explorer opens and the admin selects the saved CSV file.
-7. The admin clicks the import books button.
-8. After a successful upload, the system displays the message: “Books imported successfully from Excel file.”
-9. The imported books are then stored in the system and become visible to students during book selection.
+## 5. Start Apache and MySQL
+
+Inside XAMPP Manager, go to the **Manage Servers** tab.
+
+Start these services:
+
+```text
+Apache Web Server
+MySQL Database
+```
+
+Make sure their status becomes:
+
+```text
+Running
+```
 
 ---
 
-### 3. Student Account Creation
-1. Before using the system, the student first coordinates with the librarian or admin to request an account.
-2. The admin clicks the Students button on the Admin Dashboard.
-3. The system redirects the admin to the Create Student Account page.
-4. The admin fills out the student account form using the following details:
-   - Name
-   - Student ID
-   - Course
-   - Section
-   - Email
-   - Username
-   - Password
-5. The Student ID must be unique, and the Email must also be unique for each student.
-6. After completing the form, the admin clicks Save Student Account.
-7. The system stores the account, allowing the student to log in.
+## 6. Test XAMPP in Browser
+
+Open your browser and go to:
+
+```text
+http://localhost
+```
+
+or:
+
+```text
+http://localhost/dashboard
+```
+
+If the XAMPP dashboard appears, XAMPP is working correctly.
 
 ---
 
-### 4. Student Login and Dashboard
-After receiving the account credentials, the student opens the student login page and enters the assigned username and password. If the credentials are valid, the system redirects the student to the Student Dashboard.
+## 7. Put Your PHP Files in htdocs
 
-The Student Dashboard navigation bar contains the following sections:
+Your PHP project files should be placed inside:
 
-- Borrow Books
-- My Shelves
-- My Borrow Books
+```text
+/Applications/XAMPP/xamppfiles/htdocs
+```
 
----
+Example:
 
-### 5. Book Selection and Borrow Request
-To borrow books, the student clicks Borrow Books and is redirected to the Choose Books page.
+```text
+/Applications/XAMPP/xamppfiles/htdocs/myproject
+```
 
-This page displays the following:
+Then open it in your browser:
 
-- Search bar
-- Active Borrow Books
-- In Your Shelves
-- List of all imported books
-- Add to Shelves button beside each available book
-- View Shelves button
-
-Book availability rules:
-
-- If a book is available, the Add to Shelves button appears and the student may select it.
-- If a book is not available, the system shows Not Available instead of a borrow/select button.
-- The maximum number of books a student can borrow is 3.
-- The borrowing period is limited to 3 days.
-
-For example, if the student wants to borrow three books, the student clicks Add to Shelves beside each available title. The selected books are stored in My Shelves for review before final submission.
+```text
+http://localhost/myproject
+```
 
 ---
 
-### 6. My Shelves and QR Code Generation
-The student clicks View Shelves to open the My Shelves page. This page shows the list of selected books and the borrower information form.
+## Important Note
 
-The student must confirm or provide the following information:
+If macOS blocks XAMPP from opening:
 
-- Name
-- Student ID
-- Course
-- Section
-- Email
-
-After checking the selected books and completing the form, the student clicks Generate QR Code. The system creates a QR code in a popup window, which the student may download or save on a phone.
-
-Once the QR code is generated, the student's request details and selected books are submitted to the admin through the Borrow Request section.
+1. Go to **System Settings**
+2. Go to **Privacy & Security**
+3. Click **Open Anyway**
+4. Open XAMPP again
 
 ---
 
-### 7. Admin Review of Borrow Requests
-The admin opens the Borrow Request section to review pending requests. The table contains the following columns:
+## Check PHP in XAMPP
 
-- Name
-- Student ID
-- Course/Section
-- Email
-- QR Token
-- Requested At
-- Action
+To check XAMPP PHP version, open Terminal and run:
 
-In the Action column, the admin chooses either Available or Not Available.
+```bash
+/Applications/XAMPP/xamppfiles/bin/php -v
+```
 
-If the requested books are available, the admin clicks Available. The request status is updated from Pending to Approved, and the student may proceed to the library to claim the books.
+If the PHP version appears, XAMPP PHP is working.
 
-If the requested books are not available, the admin clicks Not Available, and the request is not approved.
 
----
+### PHP
+```plaintext
+https://www.php.net/downloads.php
+```
+# PHP Installation for Mac
 
-### 8. Claiming Approved Books Through QR Scan
-1. Once the request is approved, the student goes to the library and presents the generated QR code to the admin.
-2. The admin opens the QR Scan section on the dashboard.
-3. The QR Scan page shows a Start Camera button and a Search Record feature.
-4. The admin scans the student's QR code using the camera scanner.
-5. After scanning, the student's information and borrowing details are displayed.
-6. The system shows the Mark as Claimed button.
-7. The admin clicks Mark as Claimed to confirm that the books were successfully claimed by the student.
+## 1. Open Terminal
+
+On your Mac, open **Terminal**.
 
 ---
 
-### 9. Returning Borrowed Books
-1. When the student returns the borrowed books, the admin again opens the QR Scan section.
-2. The admin uses Start Camera or Search Record to locate the borrowing record.
-3. After the student's QR code or record is scanned, the borrowing details are displayed.
-4. The system shows the Process Return button.
-5. The admin clicks Process Return to complete the return transaction and update book availability.
+## 2. Install PHP Using Homebrew
+
+Run this command:
+
+```bash
+brew install php
+```
 
 ---
 
-### 10. Additional System Features
-- Analytics dashboard showing the most borrowed books
-- Summary cards or counters for total books, available books, and total students
-- Admin logout and student logout functions
-- Password update or credential recovery with email verification for both admin and student accounts
+## 3. Check PHP Version
+
+After installation, check if PHP is working:
+
+```bash
+php -v
+```
+
+If the PHP version appears, PHP is installed correctly.
 
 ---
 
-## Summary
-The system begins with admin-controlled book import and student account creation. Students then log in, choose available books, place them in My Shelves, and generate a QR code for their request. The admin reviews each request, approves or rejects it based on availability, scans the QR code during claiming, and later processes the return of borrowed books.
+## 4. Start PHP Built-in Server
 
-This flow supports secure borrowing, accurate monitoring, and organized circulation of library materials.
+Go to your project folder first.
+
+Example:
+
+```bash
+cd Desktop/myproject
+```
+
+Then run:
+
+```bash
+php -S localhost:8000
+```
+
+---
+
+## 5. Open in Browser
+
+Open your browser and go to:
+
+```text
+http://localhost:8000
+```
+
+---
+
+## Important Note
+
+If the `php` command is not found, try restarting Terminal.
+
+Then check again:
+
+```bash
+php -v
+```
+
+If it still does not work, run:
+
+```bash
+brew link php
+```
+
+Then check PHP again:
+
+```bash
+php -v
+```
+
+### Composer
+```plaintext
+https://getcomposer.org/download/
+```
+# Composer Installation for Mac
+
+## 1. Open Terminal
+
+On your Mac, open **Terminal**.
+
+---
+
+## 2. Install Homebrew
+
+Composer is easiest to install using **Homebrew**.
+
+Run this command:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+After installation, check if Homebrew is installed:
+
+```bash
+brew -v
+```
+
+---
+
+## 3. Install Composer
+
+Run this command:
+
+```bash
+brew install composer
+```
+
+---
+
+## 4. Check Composer Version
+
+After installation, check if Composer is working:
+
+```bash
+composer -V
+```
+
+If the Composer version appears, Composer is installed correctly.
+
+---
+
+## Important Note
+
+Composer needs PHP to work.
+
+If Composer shows an error about PHP, install PHP using:
+
+```bash
+brew install php
+```
+
+Then check PHP:
+
+```bash
+php -v
+```
+
+After that, check Composer again:
+
+```bash
+composer -V
+```
+---
+
+## 10.1 Clone or Download the Project
+
+### Clone Using Git
+Open **Terminal** and run:
+
+```bash
+git clone https://github.com/cyberknight-web/Development-of-a-Smart-Library-Circulation-System-with-QR-Code-Integration.git
+```
+
+### Or Download ZIP File
+Download the ZIP file from GitHub and extract it.
+
+---
+
+## 10.2 Move the Project to XAMPP
+
+Move the project folder to:
+
+```plaintext
+/Applications/XAMPP/xamppfiles/htdocs
+```
+
+Example:
+
+```plaintext
+/Applications/XAMPP/xamppfiles/htdocs/smartlibrary
+```
+
+---
+
+## 10.3 Start XAMPP
+
+Open **XAMPP Manager.app** and start:
+
+- Apache
+- MySQL
+
+---
+
+# 🗃️ 11. Database Setup (macOS)
+
+## 11.1 Open phpMyAdmin
+
+Open your browser and go to:
+
+```plaintext
+http://localhost/phpmyadmin
+```
+
+---
+
+## 11.2 Create Database
+
+Create a new database named:
+
+```plaintext
+smartlibrary
+```
+
+---
+
+## 11.3 Import Database
+
+1. Select `smartlibrary`
+2. Click **Import**
+3. Choose the `smartlibrary.sql` file from the folder you downloaded.
+4. Click **Go**
+
+---
+
+# ⚡ 12. Database Configuration (macOS)
+
+## 12.1 Generate Admin Password Hash
+
+Type this in your browser:
+
+```plaintext
+http://localhost/smartlibrary/generate_admin_hash.php
+```
+
+Copy the generated Hash Code.
+
+---
+
+## 12.2 Insert Admin Account
+
+1. Go to:
+
+```plaintext
+http://localhost/phpmyadmin
+```
+
+2. Click database `smartlibrary`
+3. Open the `admins` table
+4. Click **SQL**
+5. Paste this query:
+
+```sql
+INSERT INTO admins (username, password_hash)
+VALUES ('Evsu123', 'PASTE_THE_HASH_CODE_HERE');
+```
+
+> ⚠️ NOTE: Replace `PASTE_THE_HASH_CODE_HERE` with the generated hash code.
+
+Use the following default admin credentials to log in to the system:
+
+```plaintext
+Username: Evsu123
+Password: Evsu12345
+```
+
+---
+
+## 12.3 Install Composer Dependencies
+
+Open Terminal and run:
+
+```bash
+cd /Applications/XAMPP/xamppfiles/htdocs/smartlibrary
+composer install
+```
+
+---
+
+# 🌐 13. Run the System (macOS)
+
+Open your browser and go to:
+
+```plaintext
+http://localhost/smartlibrary
+```
+

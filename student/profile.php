@@ -33,7 +33,7 @@ if ($status === 'updated') {
 } elseif ($status === 'file_error') {
     $error_message = 'File upload failed. Please try again.';
 } elseif ($status === 'size_error') {
-    $error_message = 'File is too large. Maximum 5MB allowed.';
+    $error_message = 'File size must not exceed 5MB.';
 } elseif ($status === 'error') {
     $error_message = 'An error occurred while updating your profile.';
 }
@@ -104,6 +104,21 @@ student_render_header('My Profile');
         font-size: 0.75rem;
         color: #6c757d;
     }
+    .sl-image-preview-wrap {
+        display: none;
+        margin: 0.75rem auto 0;
+    }
+    .sl-image-preview-wrap.is-visible {
+        display: block;
+    }
+    .sl-image-preview {
+        width: 130px;
+        height: 130px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #fff;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14);
+    }
 </style>
 
 <div class="row mb-4">
@@ -145,9 +160,14 @@ student_render_header('My Profile');
                     <?php endif; ?>
                 </div>
                 <form method="post" action="<?php echo BASE_URL; ?>/student/profile_action.php" enctype="multipart/form-data" id="uploadForm">
+                    <input type="hidden" name="action" value="upload_picture">
                     <div class="mb-3">
                         <label for="profile_picture" class="form-label sl-form-label">Choose Image</label>
                         <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept=".jpg,.jpeg,.png,.gif" required>
+                        <div class="invalid-feedback" id="profile-picture-error">File size must not exceed 5MB.</div>
+                        <div class="sl-image-preview-wrap" id="image-preview-wrap">
+                            <img src="" alt="Selected profile picture preview" class="sl-image-preview" id="image-preview">
+                        </div>
                         <small class="form-text text-muted">JPG, PNG, or GIF • Max 5MB</small>
                     </div>
                     <button type="submit" class="btn btn-sl-primary w-100">Upload Picture</button>
@@ -235,6 +255,63 @@ student_render_header('My Profile');
         </div>
     </div>
 </div>
+
+<script>
+    (function () {
+        const maxFileSize = 5 * 1024 * 1024;
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('profile_picture');
+        const previewWrap = document.getElementById('image-preview-wrap');
+        const previewImage = document.getElementById('image-preview');
+
+        if (!uploadForm || !fileInput || !previewWrap || !previewImage) {
+            return;
+        }
+
+        function clearPreview() {
+            if (previewImage.src) {
+                URL.revokeObjectURL(previewImage.src);
+            }
+            previewImage.removeAttribute('src');
+            previewWrap.classList.remove('is-visible');
+        }
+
+        function showSizeError() {
+            fileInput.value = '';
+            fileInput.setCustomValidity('File size must not exceed 5MB.');
+            fileInput.classList.add('is-invalid');
+            fileInput.reportValidity();
+        }
+
+        fileInput.addEventListener('change', function () {
+            const file = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+            fileInput.setCustomValidity('');
+            fileInput.classList.remove('is-invalid');
+            clearPreview();
+
+            if (!file) {
+                return;
+            }
+
+            if (file.size > maxFileSize) {
+                showSizeError();
+                return;
+            }
+
+            previewImage.src = URL.createObjectURL(file);
+            previewWrap.classList.add('is-visible');
+        });
+
+        uploadForm.addEventListener('submit', function (event) {
+            const file = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+
+            if (file && file.size > maxFileSize) {
+                event.preventDefault();
+                showSizeError();
+            }
+        });
+    })();
+</script>
 
 <?php
 student_render_footer();
