@@ -20,7 +20,7 @@ $pdo = db_connect();
 $student_id = (int)$_SESSION['student_id'];
 
 $stmt = $pdo->prepare(
-    "SELECT br.id, br.qr_token, br.status, br.notes, s.name, s.student_id AS student_code, s.course, s.section, s.email
+    "SELECT br.id, br.qr_token, br.status, br.notes, br.requested_at, s.name, s.student_id AS student_code, s.course, s.section, s.email
      FROM borrow_requests br
      JOIN students s ON s.id = br.student_id
      WHERE br.qr_token = :token AND br.student_id = :sid LIMIT 1"
@@ -41,6 +41,16 @@ $items = $stmt_items->fetchAll(PDO::FETCH_ASSOC);
 $qr_url = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' . urlencode($token);
 $qr_download_url = BASE_URL . '/student/qr_download.php?token=' . urlencode($token);
 $qr_claim_url = BASE_URL . '/admin/qr_scan.php?qr=' . urlencode($token);
+$generated_at_display = '';
+
+if (!empty($record['requested_at'])) {
+    try {
+        $generated_at = new DateTimeImmutable((string)$record['requested_at'], new DateTimeZone(APP_TIMEZONE));
+        $generated_at_display = $generated_at->format('F j, Y g:i A');
+    } catch (Throwable $e) {
+        error_log('QR generated date formatting failed: ' . $e->getMessage());
+    }
+}
 
 student_render_header('Your QR Code');
 ?>
@@ -60,6 +70,9 @@ student_render_header('Your QR Code');
             <div class="card-body text-center">
                 <h5 class="card-title mb-3">QR Code</h5>
                 <img src="<?php echo htmlspecialchars($qr_url, ENT_QUOTES, 'UTF-8'); ?>" alt="QR Code" class="img-fluid" id="qrImage" style="max-width: 220px;">
+                <?php if ($generated_at_display !== ''): ?>
+                    <p class="small text-muted mt-2 mb-1">Generated on: <?php echo htmlspecialchars($generated_at_display, ENT_QUOTES, 'UTF-8'); ?></p>
+                <?php endif; ?>
                 <p class="small text-muted mt-2 mb-2">Token: <code id="qrToken"><?php echo htmlspecialchars($record['qr_token'], ENT_QUOTES, 'UTF-8'); ?></code></p>
                 <p class="small mb-2">Download or screenshot this page to present at the library.</p>
                 <a
