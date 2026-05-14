@@ -11,7 +11,7 @@ require_once __DIR__ . '/../includes/student_layout.php';
 require_student_login();
 
 $pdo = db_connect();
-$cart = student_get_cart();
+$cart = student_sync_cart_with_books($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
