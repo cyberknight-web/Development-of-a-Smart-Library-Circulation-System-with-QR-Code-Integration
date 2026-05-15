@@ -103,7 +103,7 @@ php
 
 ## 4. Move PHP Folder
 
-Move the `php` folder to:
+Move the `php` folder to locadisk (C:): 
 
 ```text
 C:\php
