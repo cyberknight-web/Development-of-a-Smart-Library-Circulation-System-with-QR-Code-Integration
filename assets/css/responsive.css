@@ -1,0 +1,300 @@
+/* Smart Library responsive layout helpers */
+
+html {
+    min-width: 0;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+img,
+svg,
+canvas,
+video {
+    max-width: 100%;
+}
+
+img,
+video {
+    height: auto;
+}
+
+.container,
+.container-fluid {
+    min-width: 0;
+}
+
+.navbar {
+    --bs-navbar-toggler-border-color: rgba(255, 255, 255, 0.45);
+    --bs-navbar-toggler-focus-width: 0.12rem;
+}
+
+.navbar-brand {
+    max-width: min(68vw, 520px);
+    white-space: normal;
+    line-height: 1.2;
+}
+
+.navbar-toggler {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+.sl-navbar .navbar-collapse {
+    min-width: 0;
+}
+
+.sl-navbar .nav-link {
+    border-radius: 0.5rem;
+    padding-inline: 0.75rem;
+}
+
+.sl-navbar .dropdown-menu {
+    max-width: calc(100vw - 2rem);
+}
+
+.sl-card,
+.card,
+.alert,
+.modal-content {
+    max-width: 100%;
+}
+
+.card-body,
+.modal-body,
+.modal-header,
+.modal-footer {
+    min-width: 0;
+}
+
+.row > * {
+    min-width: 0;
+}
+
+.table-responsive {
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    overflow-wrap: anywhere;
+    vertical-align: middle;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th,
+.table td {
+    white-space: normal;
+}
+
+.table-responsive > .table {
+    min-width: 680px;
+}
+
+.btn,
+.form-control,
+.form-select,
+.input-group-text {
+    min-height: 42px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    white-space: normal;
+}
+
+.btn-group {
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.btn-group > .btn {
+    border-radius: var(--bs-btn-border-radius) !important;
+}
+
+.input-group {
+    min-width: 0;
+}
+
+.input-group > .form-control,
+.input-group > .form-select {
+    min-width: 8rem;
+}
+
+.form-control,
+.form-select,
+textarea {
+    max-width: 100%;
+}
+
+.badge,
+.sl-badge,
+.notification-badge,
+code {
+    overflow-wrap: anywhere;
+}
+
+.chart-container {
+    max-width: 100%;
+}
+
+#qr-reader {
+    width: 100% !important;
+}
+
+@media (max-width: 991.98px) {
+    main.container {
+        max-width: 100%;
+    }
+
+    .sl-navbar {
+        margin-bottom: 1rem !important;
+    }
+
+    .sl-navbar .navbar-nav {
+        gap: 0.15rem;
+        padding-top: 0.75rem;
+    }
+
+    .sl-navbar .nav-link {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    .sl-navbar .dropdown-menu {
+        border: 0;
+        box-shadow: none;
+        margin-top: 0.25rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    body {
+        font-size: 0.95rem;
+    }
+
+    main.container,
+    body > .container {
+        padding-inline: 0.85rem;
+    }
+
+    h1,
+    .h1 {
+        font-size: clamp(1.45rem, 7vw, 2rem);
+    }
+
+    h2,
+    .h2 {
+        font-size: clamp(1.25rem, 6vw, 1.65rem);
+    }
+
+    h3,
+    .h3,
+    h4,
+    .h4 {
+        font-size: clamp(1.1rem, 5vw, 1.35rem);
+    }
+
+    .card-body,
+    .modal-body {
+        padding: 1rem !important;
+    }
+
+    .modal-dialog {
+        margin: 0.75rem;
+    }
+
+    .modal-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .modal-footer > * {
+        width: 100%;
+        margin: 0 !important;
+    }
+
+    .btn,
+    .btn-group > .btn {
+        width: 100%;
+        min-height: 46px;
+    }
+
+    .d-flex:has(> .btn),
+    .d-flex:has(> .btn-group),
+    .d-flex:has(> form) {
+        flex-wrap: wrap;
+        gap: 0.5rem !important;
+    }
+
+    .input-group {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .input-group > .form-control,
+    .input-group > .form-select,
+    .input-group > .btn,
+    .input-group > .input-group-text {
+        width: 100%;
+        border-radius: var(--bs-border-radius) !important;
+    }
+
+    form .row {
+        --bs-gutter-y: 0.75rem;
+    }
+
+    .table-responsive {
+        border-radius: 0.75rem;
+        box-shadow: inset -12px 0 14px -16px rgba(0, 0, 0, 0.45);
+    }
+
+    .table-responsive > .table {
+        min-width: 760px;
+    }
+
+    .login-card,
+    body > .card {
+        width: calc(100% - 1.5rem) !important;
+        margin: 0.75rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    body {
+        align-items: flex-start;
+    }
+
+    .navbar-brand {
+        max-width: calc(100vw - 5.5rem);
+        font-size: 1rem;
+    }
+
+    .sl-page-header {
+        padding-left: 0.6rem;
+    }
+
+    .login-header {
+        align-items: flex-start !important;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1.15rem !important;
+    }
+
+    .portal-card {
+        max-width: none;
+    }
+
+    .badge,
+    .sl-badge {
+        white-space: normal;
+    }
+}
