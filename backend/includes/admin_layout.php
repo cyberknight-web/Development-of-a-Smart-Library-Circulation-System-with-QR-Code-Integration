@@ -16,6 +16,7 @@ function admin_render_header(string $page_title = 'Admin'): void
         <title><?php echo htmlspecialchars($full_title, ENT_QUOTES, 'UTF-8'); ?></title>
         <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/assets/images/favicon.png">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/responsive.css">
         <style>
             :root {
                 --sl-primary: <?php echo COLOR_PRIMARY; ?>;
@@ -154,6 +155,16 @@ function admin_render_footer(): void
     ?>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.querySelectorAll('main table').forEach(function (table) {
+            if (!table.closest('.table-responsive')) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'table-responsive';
+                table.parentNode.insertBefore(wrapper, table);
+                wrapper.appendChild(table);
+            }
+        });
+    </script>
     </body>
     </html>
     <?php
