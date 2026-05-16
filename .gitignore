@@ -3,6 +3,7 @@
 
 # Environment files
 .env
+/.ssh/
 
 # Logs
 *.log
