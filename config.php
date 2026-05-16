@@ -8,7 +8,7 @@ declare(strict_types=1);
 const DB_HOST = 'localhost';
 const DB_NAME = 'u173310863_smartlibrarydb';
 const DB_USER = 'u173310863_encrypted'; // your Hostinger DB username
-const DB_PASS = 'SystemProject23';
+const DB_PASS = 'SystemProject123';
 const DB_CHARSET = 'utf8mb4';
 
 // Base URL is built from the current request so it works from both:
