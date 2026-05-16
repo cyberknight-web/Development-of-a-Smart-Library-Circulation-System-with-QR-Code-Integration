@@ -2,13 +2,13 @@
 // config.php
 // Global configuration for Smart Library system (database, app constants).
 
+
 declare(strict_types=1);
 
-// Update these credentials to match your MySQL setup.
-const DB_HOST = '127.0.0.1';
+const DB_HOST = 'localhost';
 const DB_NAME = 'u173310863_smartlibrarydb';
-const DB_USER = 'root';
-const DB_PASS = '';
+const DB_USER = 'u173310863_encrypted'; // your Hostinger DB username
+const DB_PASS = 'SystemProject23';
 const DB_CHARSET = 'utf8mb4';
 
 // Base URL is built from the current request so it works from both:
