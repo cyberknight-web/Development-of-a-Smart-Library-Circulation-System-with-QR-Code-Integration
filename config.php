@@ -68,7 +68,7 @@ function db_connect(): PDO
         $pdo->exec("SET time_zone = '" . $offset . "'");
     } catch (PDOException $e) {
         http_response_code(500);
-        echo 'Database connection failed. Please contact the administrator.';
+        echo 'Database connection failed: ' . $e->getMessage();
         error_log('DB connection error: ' . $e->getMessage());
         exit;
     }
