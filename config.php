@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 // Update these credentials to match your MySQL setup.
 const DB_HOST = '127.0.0.1';
-const DB_NAME = 'smartlibrary';
+const DB_NAME = 'u173310863_smartlibrarydb';
 const DB_USER = 'root';
 const DB_PASS = '';
 const DB_CHARSET = 'utf8mb4';
