@@ -119,7 +119,7 @@ student_render_header('Return Books');
     </div>
 </div>
 
-<div class="mt-4">
+<div class="mt-4 sl-bottom-actions">
     <a href="<?php echo BASE_URL; ?>/student/dashboard.php" class="btn btn-sl-primary">Back to Dashboard</a>
     <a href="<?php echo BASE_URL; ?>/student/choose_books.php" class="btn btn-outline-secondary ms-2">Borrow More Books</a>
 </div>

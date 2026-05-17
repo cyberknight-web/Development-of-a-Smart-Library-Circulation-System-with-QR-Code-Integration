@@ -11,6 +11,8 @@ const DB_USER = 'u173310863_encrypted'; // your Hostinger DB username
 const DB_PASS = 'SystemProject123';
 const DB_CHARSET = 'utf8mb4';
 
+
+
 // Base URL is built from the current request so it works from both:
 // - Laptop: http://localhost/smartlibrary
 // - Phone (LAN): http://192.168.x.x/smartlibrary
@@ -43,7 +45,7 @@ const MAIL_FROM_NAME = 'EVSU Smart Library';
 const MAIL_SMTP_HOST = 'smtp.gmail.com';       // e.g. 'smtp.gmail.com'
 const MAIL_SMTP_PORT = 587;
 const MAIL_SMTP_USER = 'evsulibrary.ormoc@gmail.com';
-const MAIL_SMTP_PASS = 'vtff oaww esjf pnjn';
+const MAIL_SMTP_PASS = 'azjh girq zegy lpmq';
 const MAIL_SMTP_SECURE = 'tls';  // tls or ssl
 
 function db_connect(): PDO

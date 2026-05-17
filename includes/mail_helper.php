@@ -10,8 +10,20 @@ declare(strict_types=1);
  */
 function send_mail(string $to_email, string $to_name, string $subject, string $body_html): bool
 {
-    $vendor = dirname(__DIR__) . '/vendor/autoload.php';
-    if (file_exists($vendor)) {
+    $vendor_paths = [
+        dirname(__DIR__) . '/vendor/autoload.php',
+        dirname(__DIR__) . '/backend/vendor/autoload.php',
+    ];
+
+    $vendor = null;
+    foreach ($vendor_paths as $path) {
+        if (file_exists($path)) {
+            $vendor = $path;
+            break;
+        }
+    }
+
+    if ($vendor !== null) {
         require_once $vendor;
         try {
             $mailer_class = '\\PHPMailer\\PHPMailer\\PHPMailer';
