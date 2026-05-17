@@ -7,6 +7,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/student_auth.php';
 require_once __DIR__ . '/../includes/student_layout.php';
+require_once __DIR__ . '/../includes/student_requests_helper.php';
 
 require_student_login();
 
@@ -15,20 +16,7 @@ $student_id = (int)$_SESSION['student_id'];
 $show_login_success = !empty($_SESSION['student_login_success']);
 unset($_SESSION['student_login_success']);
 
-// Pending/approved/claimed requests (not returned) for this student, with book titles per request
-$stmt = $pdo->prepare(
-    "SELECT br.id, br.qr_token, br.status, br.requested_at,
-            (SELECT GROUP_CONCAT(b.title ORDER BY b.title SEPARATOR ', ')
-             FROM borrow_request_items bri
-             JOIN books b ON b.id = bri.book_id
-             WHERE bri.borrow_request_id = br.id) AS book_titles
-     FROM borrow_requests br
-     WHERE br.student_id = :sid AND br.status IN ('pending', 'approved', 'claimed')
-     ORDER BY br.requested_at DESC
-     LIMIT 10"
-);
-$stmt->execute([':sid' => $student_id]);
-$my_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$my_requests = sl_get_student_active_requests($pdo, $student_id);
 
 /** @noinspection PhpUndefinedFunctionInspection */
 student_render_header('Dashboard');
@@ -212,14 +200,13 @@ student_render_header('Dashboard');
         </div>
 </div>
 
-<?php if (!empty($my_requests)): ?>
 <div class="row mt-4">
     <div class="col-12">
         <div class="card sl-card sl-requests-card">
             <div class="card-body">
                 <div class="sl-requests-head mb-3">
                     <h5 class="card-title fw-semibold mb-0">Your Active Borrow Requests</h5>
-                    <span class="sl-requests-chip"><?php echo count($my_requests); ?> Active</span>
+                    <span class="sl-requests-chip" id="studentActiveRequestsChip"><?php echo count($my_requests); ?> Active</span>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-sm align-middle sl-requests-table">
@@ -231,7 +218,14 @@ student_render_header('Dashboard');
                                 <th class="text-end">Action</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="studentActiveRequestsTableBody">
+                            <?php if (empty($my_requests)): ?>
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4" data-label="">
+                                        You have no active borrow requests right now.
+                                    </td>
+                                </tr>
+                            <?php else: ?>
                             <?php foreach ($my_requests as $r): ?>
                                 <tr>
                                     <td>
@@ -246,6 +240,7 @@ student_render_header('Dashboard');
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -253,7 +248,49 @@ student_render_header('Dashboard');
         </div>
     </div>
 </div>
-<?php endif; ?>
+
+<script>
+(function () {
+    var tableBody = document.getElementById('studentActiveRequestsTableBody');
+    var activeChip = document.getElementById('studentActiveRequestsChip');
+    var endpoint = '<?php echo BASE_URL; ?>/student/dashboard_live.php';
+
+    function refreshStudentRequests() {
+        if (!tableBody) {
+            return;
+        }
+
+        fetch(endpoint, {
+            headers: { 'Accept': 'application/json' },
+            cache: 'no-store'
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Request failed');
+                }
+
+                return response.json();
+            })
+            .then(function (data) {
+                var count = Number(data.active_count || 0);
+
+                if (typeof data.rows_html === 'string') {
+                    tableBody.innerHTML = data.rows_html;
+                }
+
+                if (activeChip) {
+                    activeChip.textContent = count + ' Active';
+                }
+            })
+            .catch(function () {
+                // Keep the current dashboard visible if the connection briefly drops.
+            });
+    }
+
+    refreshStudentRequests();
+    window.setInterval(refreshStudentRequests, 10000);
+})();
+</script>
 
 <?php if ($show_login_success): ?>
 <script>
