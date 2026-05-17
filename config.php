@@ -42,8 +42,8 @@ const MAIL_FROM_EMAIL = 'noreply@example.com';
 const MAIL_FROM_NAME = 'EVSU Smart Library';
 const MAIL_SMTP_HOST = 'smtp.gmail.com';       // e.g. 'smtp.gmail.com'
 const MAIL_SMTP_PORT = 587;
-const MAIL_SMTP_USER = 'your_email@gmail.com';
-const MAIL_SMTP_PASS = 'your_app_password';
+const MAIL_SMTP_USER = 'evsulibrary.ormoc@gmail.com';
+const MAIL_SMTP_PASS = 'vtff oaww esjf pnjn';
 const MAIL_SMTP_SECURE = 'tls';  // tls or ssl
 
 function db_connect(): PDO
