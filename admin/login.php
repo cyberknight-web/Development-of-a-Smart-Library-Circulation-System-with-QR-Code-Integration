@@ -39,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/assets/images/favicon.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/responsive.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modern-minimal.css">
     <style>
         :root {
             --sl-primary: <?php echo COLOR_PRIMARY; ?>;
@@ -50,20 +51,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: url('<?php echo BASE_URL; ?>/assets/images/backgroundsmart.jpg') no-repeat center center fixed;
-            background-size: cover;
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.46), rgba(255, 255, 255, 0.46)),
+                url('<?php echo BASE_URL; ?>/assets/images/student-login-smart-library.png') no-repeat center center fixed !important;
+            background-size: cover !important;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            padding: 2rem clamp(1rem, 6vw, 5rem);
         }
         .login-card {
-            max-width: 420px;
+            max-width: 430px;
             width: 100%;
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.15);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.9) !important;
+            box-shadow: 0 24px 70px rgba(17, 17, 17, 0.36) !important;
             overflow: hidden;
+            background: rgba(255, 255, 255, 0.97) !important;
+            backdrop-filter: blur(10px);
         }
         .login-header {
-            background: linear-gradient(135deg, var(--sl-primary), #4a0000);
+            background: linear-gradient(135deg, #720000, #4a0000) !important;
             color: var(--sl-light);
             padding: 1.5rem 1.75rem;
         }
@@ -74,6 +80,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .login-header p {
             margin: 0.25rem 0 0;
             opacity: 0.85;
+        }
+        .login-logo {
+            width: 56px;
+            height: 56px;
+            object-fit: contain;
+            background: #fff;
+            border-radius: 50%;
+            padding: 3px;
         }
         .badge-evsu {
             background-color: var(--sl-accent);
@@ -112,6 +126,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .password-toggle:hover {
             color: #212529;
         }
+        @media (max-width: 991.98px) {
+            body {
+                background:
+                    linear-gradient(rgba(255, 255, 255, 0.54), rgba(255, 255, 255, 0.54)),
+                    url('<?php echo BASE_URL; ?>/assets/images/student-login-smart-library.png') no-repeat center center fixed !important;
+                background-size: cover !important;
+            }
+        }
+        @media (max-width: 575.98px) {
+            body {
+                align-items: flex-start;
+                padding: 1rem;
+            }
+            .login-card {
+                margin-top: 1.25rem;
+            }
+            .login-header {
+                padding: 1.2rem;
+            }
+            .login-header h1 {
+                font-size: 1.25rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -121,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h1>EVSU Smart Library</h1>
             <p class="small">Administrator Portal</p>
         </div>
-        <span class="badge badge-evsu">Admin</span>
+        <img src="<?php echo BASE_URL; ?>/assets/images/evsu-logo.png" alt="EVSU logo" class="login-logo">
     </div>
     <div class="card-body p-4">
         <?php if (!empty($errors)): ?>

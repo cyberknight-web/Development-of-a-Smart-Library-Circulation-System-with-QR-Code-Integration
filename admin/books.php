@@ -31,6 +31,17 @@ $books_all = $stmt_all->fetchAll();
 $books_available = $stmt_available->fetchAll();
 $books_backup = [];
 $backup_available = false;
+
+function sl_book_data_attribute(array $book): string
+{
+    $json = json_encode(
+        $book,
+        JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE
+    );
+
+    return htmlspecialchars($json !== false ? $json : '{}', ENT_QUOTES, 'UTF-8');
+}
+
 try {
     $table_check = $pdo->query("SHOW TABLES LIKE 'books_restore_bin'");
     $backup_available = $table_check && (bool)$table_check->fetchColumn();
@@ -302,7 +313,7 @@ admin_render_header('Books Management');
                                 <tbody>
                                 <?php if ($books_all): ?>
                                     <?php foreach ($books_all as $book): ?>
-                                        <tr data-book="<?php echo htmlspecialchars(json_encode($book), ENT_QUOTES, 'UTF-8'); ?>">
+                                        <tr data-book="<?php echo sl_book_data_attribute($book); ?>">
                                             <td><?php echo htmlspecialchars($book['title'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td><?php echo htmlspecialchars($book['author'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td><?php echo htmlspecialchars($book['category'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
@@ -368,7 +379,7 @@ admin_render_header('Books Management');
                                 <tbody>
                                 <?php if ($books_available): ?>
                                     <?php foreach ($books_available as $book): ?>
-                                        <tr data-book="<?php echo htmlspecialchars(json_encode($book), ENT_QUOTES, 'UTF-8'); ?>">
+                                        <tr data-book="<?php echo sl_book_data_attribute($book); ?>">
                                             <td><?php echo htmlspecialchars($book['title'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td><?php echo htmlspecialchars($book['author'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td><?php echo htmlspecialchars($book['category'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
@@ -576,7 +587,10 @@ admin_render_header('Books Management');
     document.querySelectorAll('.btn-edit-book').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var book = getBookFromRow(btn);
-            if (!book) return;
+            if (!book || !book.id) {
+                alert('This book record could not be loaded for editing. Please refresh the page and try again.');
+                return;
+            }
             document.getElementById('editBookId').value = book.id;
             document.getElementById('edit_accession_no').value = book.accession_no || '';
             document.getElementById('edit_isbn').value = book.isbn || '';
@@ -589,8 +603,12 @@ admin_render_header('Books Management');
             document.getElementById('edit_copies_total').value = book.copies_total != null ? book.copies_total : 1;
             document.getElementById('edit_copies_available').value = book.copies_available != null ? book.copies_available : 0;
             document.getElementById('edit_status').value = (book.status === 'not_available') ? 'not_available' : 'available';
-            var modal = new bootstrap.Modal(editModal);
-            modal.show();
+            if (!editModal || !window.bootstrap) {
+                alert('The update form could not be opened. Please refresh the page and try again.');
+                return;
+            }
+
+            bootstrap.Modal.getOrCreateInstance(editModal).show();
         });
     });
 

@@ -73,6 +73,7 @@ if ($token === '') {
         .btn-sl-primary { background-color: var(--sl-primary); color: var(--sl-light); border: none; }
         .btn-sl-primary:hover { background-color: #5c0000; color: var(--sl-light); }
     </style>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modern-minimal.css">
 </head>
 <body>
 <div class="card w-100">

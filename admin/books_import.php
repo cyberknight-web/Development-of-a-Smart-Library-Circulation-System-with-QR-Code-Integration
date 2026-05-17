@@ -165,7 +165,7 @@ try {
 
         $publication_year = $publication_year_raw !== '' ? (int)$publication_year_raw : null;
 
-        $status = $copies > 0 ? 'available' : 'unavailable';
+        $status = $copies > 0 ? 'available' : 'not_available';
 
         $stmt->execute([
             ':accession_no'     => $accession_no,
