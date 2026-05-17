@@ -50,6 +50,16 @@ $stmt_monthly = $pdo->prepare(
 $stmt_monthly->execute();
 $borrows_by_month = $stmt_monthly->fetchAll(PDO::FETCH_KEY_PAIR);
 
+$stmt_students_monthly = $pdo->prepare(
+    "SELECT DATE_FORMAT(created_at, '%Y-%m') AS m, COUNT(*) AS cnt
+     FROM students
+     WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+     GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+     ORDER BY m ASC"
+);
+$stmt_students_monthly->execute();
+$students_by_month = $stmt_students_monthly->fetchAll(PDO::FETCH_KEY_PAIR);
+
 // Build last 30 days labels and values (fill missing days with 0)
 $chart_days_labels = [];
 $chart_days_data = [];
@@ -61,10 +71,12 @@ for ($i = 29; $i >= 0; $i--) {
 
 $chart_months_labels = [];
 $chart_months_data = [];
+$chart_students_months_data = [];
 for ($i = 11; $i >= 0; $i--) {
     $m = date('Y-m', strtotime("-$i months"));
-    $chart_months_labels[] = $m;
+    $chart_months_labels[] = strtoupper(date('M', strtotime($m . '-01')));
     $chart_months_data[] = (int) ($borrows_by_month[$m] ?? 0);
+    $chart_students_months_data[] = (int) ($students_by_month[$m] ?? 0);
 }
 
 
@@ -242,6 +254,137 @@ admin_render_header('Dashboard');
         color: #6c757d;
         border-bottom-width: 1px;
     }
+    .sl-analytics-grid {
+        align-items: stretch;
+    }
+    .sl-dashboard-analytics {
+        border: 1px solid rgba(114, 0, 0, 0.18);
+        border-radius: 6px;
+        background: #ffffff;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+        padding: 0.55rem;
+    }
+    .sl-analytics-panel {
+        border: 1px solid rgba(114, 0, 0, 0.18) !important;
+        border-radius: 5px !important;
+        background: #fff !important;
+        box-shadow: 0 10px 24px rgba(114, 0, 0, 0.08) !important;
+        overflow: hidden;
+    }
+    .sl-analytics-panel .card-header {
+        min-height: 42px;
+        padding: 0.75rem 1rem 0.35rem;
+    }
+    .sl-analytics-panel-title {
+        color: #111111;
+        font-size: 0.82rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .sl-analytics-legend {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        color: #111111;
+        font-size: 0.68rem;
+        font-weight: 700;
+    }
+    .sl-legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        white-space: nowrap;
+    }
+    .sl-legend-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .sl-legend-toggle {
+        border: 0;
+        border-radius: 999px;
+        background: #F6C600;
+        color: #111111;
+        font-size: 0.58rem;
+        font-weight: 800;
+        line-height: 1;
+        padding: 0.28rem 0.48rem;
+    }
+    .sl-site-traffic-chart {
+        height: 330px;
+        padding: 0.35rem 1rem 0.75rem;
+    }
+    .sl-donut-wrap {
+        display: grid;
+        grid-template-columns: 170px 1fr;
+        gap: 1.2rem;
+        align-items: center;
+    }
+    .sl-donut-box {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+    }
+    .sl-donut-center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #111111;
+        pointer-events: none;
+    }
+    .sl-donut-center strong {
+        color: #111111;
+        font-size: 2rem;
+        line-height: 1;
+    }
+    .sl-donut-center span {
+        color: #720000;
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .sl-extra-copy {
+        color: #111111;
+        font-size: 0.72rem;
+        line-height: 1.35;
+        margin-bottom: 0.8rem;
+    }
+    .sl-mini-row {
+        display: grid;
+        grid-template-columns: 18px 1fr;
+        gap: 0.4rem;
+        align-items: center;
+        color: #111111;
+        font-size: 0.7rem;
+        margin-bottom: 0.35rem;
+    }
+    .sl-mini-track {
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(114, 0, 0, 0.12);
+        overflow: hidden;
+    }
+    .sl-mini-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: #F6C600;
+    }
+    .sl-extra-chart {
+        height: 188px;
+    }
+    @media (max-width: 767.98px) {
+        .sl-donut-wrap {
+            grid-template-columns: 1fr;
+        }
+        .sl-site-traffic-chart {
+            height: 280px;
+        }
+    }
 </style>
 
 <div class="row mb-4">
@@ -413,66 +556,76 @@ admin_render_header('Dashboard');
     </div>
 </div>
 
-<div class="row g-4">
-    <!-- 2. Borrowing Activity Chart -->
-    <div class="col-lg-8">
-        <div class="card sl-card sl-analytics-card h-100">
-            <div class="card-header bg-transparent border-0 pt-3 pb-0 sl-analytics-header">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <h5 class="mb-0 fw-semibold sl-analytics-title"><span class="dot"></span>Borrowing Activity</h5>
-                    <span class="sl-analytics-sub">Live circulation trend</span>
-                </div>
-                <ul class="nav nav-tabs card-header-tabs mt-2 sl-analytics-tabs" role="tablist">
-                    <li class="nav-item">
-                        <button class="nav-link active" id="tab-day" data-bs-toggle="tab" data-bs-target="#chart-day" type="button">By Day (30 days)</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" id="tab-month" data-bs-toggle="tab" data-bs-target="#chart-month" type="button">By Month (12 months)</button>
-                    </li>
-                </ul>
-            </div>
-            <div class="card-body">
-                <div class="tab-content sl-chart-shell sl-analytics-shell">
-                    <div class="tab-pane fade show active" id="chart-day">
-                        <div class="chart-container" style="height: 280px;">
-                            <canvas id="chartBorrowsDay"></canvas>
-                        </div>
+<section class="sl-dashboard-analytics mb-4">
+    <div class="row g-3 sl-analytics-grid">
+        <div class="col-12">
+            <div class="card sl-analytics-panel">
+                <div class="card-header bg-transparent border-0 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <h5 class="sl-analytics-panel-title">Site Traffic</h5>
+                    <div class="sl-analytics-legend">
+                        <span class="sl-legend-item"><span class="sl-legend-dot" style="background:#720000;"></span>Borrow Requests</span>
+                        <span class="sl-legend-item"><span class="sl-legend-dot" style="background:#F6C600;"></span>Registered Users</span>
+                        <button type="button" class="sl-legend-toggle" aria-label="Year view">YEAR</button>
                     </div>
-                    <div class="tab-pane fade" id="chart-month">
-                        <div class="chart-container" style="height: 280px;">
-                            <canvas id="chartBorrowsMonth"></canvas>
-                        </div>
+                </div>
+                <div class="card-body pt-0">
+                    <div class="sl-site-traffic-chart">
+                        <canvas id="chartSiteTraffic"></canvas>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- 3. Book Status Pie Chart -->
-    <div class="col-lg-4">
-        <div class="card sl-card sl-analytics-card h-100">
-            <div class="card-header bg-transparent border-0 pt-3 pb-0 sl-analytics-header">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <h5 class="mb-0 fw-semibold sl-analytics-title"><span class="dot"></span>Book Status</h5>
-                    <span class="sl-analytics-sub">Availability snapshot</span>
+        <div class="col-lg-6">
+            <div class="card sl-analytics-panel h-100">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="sl-analytics-panel-title">Extra Info</h5>
+                </div>
+                <div class="card-body">
+                    <div class="sl-donut-wrap">
+                        <div class="sl-donut-box">
+                            <canvas id="chartRegistrationRate"></canvas>
+                            <div class="sl-donut-center">
+                                <strong><?php echo $total_students > 0 ? 75 : 0; ?>%</strong>
+                                <span>Registration</span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="sl-extra-copy">
+                                Student activity, requests, and available book copies are summarized here for a quick library health check.
+                            </p>
+                            <div class="sl-mini-row">
+                                <span>A</span>
+                                <div class="sl-mini-track"><div class="sl-mini-fill" style="width: <?php echo max(8, $availability_rate); ?>%;"></div></div>
+                            </div>
+                            <div class="sl-mini-row">
+                                <span>B</span>
+                                <div class="sl-mini-track"><div class="sl-mini-fill" style="width: <?php echo max(8, $approved_rate); ?>%;"></div></div>
+                            </div>
+                            <div class="sl-mini-row">
+                                <span>C</span>
+                                <div class="sl-mini-track"><div class="sl-mini-fill" style="width: <?php echo max(8, $pending_rate); ?>%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="card-body d-flex align-items-center justify-content-center">
-                <div class="chart-container sl-chart-shell sl-analytics-shell" style="height: 260px; width: 100%; max-width: 300px;">
-                    <canvas id="chartBookStatus"></canvas>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card sl-analytics-panel h-100">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="sl-analytics-panel-title">Extra Info-2</h5>
                 </div>
-            </div>
-            <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-3">
-                <div class="sl-status-legend">
-                    <span class="sl-status-pill"><span class="swatch" style="background:#198754;"></span>Available</span>
-                    <span class="sl-status-pill"><span class="swatch" style="background:#0d6efd;"></span>Borrowed</span>
-                    <span class="sl-status-pill"><span class="swatch" style="background:#ffc107;"></span>Reserved</span>
-                    <span class="sl-status-pill"><span class="swatch" style="background:#dc3545;"></span>Overdue</span>
+                <div class="card-body">
+                    <div class="sl-extra-chart">
+                        <canvas id="chartBorrowMix"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <!-- 4. Most Borrowed Books -->
 <div class="row mt-2">
@@ -526,83 +679,168 @@ admin_render_header('Dashboard');
     var daysData = <?php echo json_encode($chart_days_data); ?>;
     var monthsLabels = <?php echo json_encode($chart_months_labels); ?>;
     var monthsData = <?php echo json_encode($chart_months_data); ?>;
+    var studentsMonthsData = <?php echo json_encode($chart_students_months_data); ?>;
 
-    var chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-            tooltip: {
-                backgroundColor: 'rgba(33, 37, 41, 0.95)',
-                borderColor: 'rgba(128, 0, 0, 0.35)',
-                borderWidth: 1,
-                displayColors: false
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: { stepSize: 1, color: '#6c757d' },
-                grid: { color: 'rgba(128, 0, 0, 0.08)' }
-            },
-            x: {
-                ticks: { color: '#6c757d', maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
-                grid: { display: false }
-            }
+    function makeGradient(ctx, colorTop, colorBottom) {
+        var chart = ctx.chart;
+        var area = chart.chartArea;
+        if (!area) {
+            return colorTop;
         }
-    };
+        var gradient = chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+        gradient.addColorStop(0, colorTop);
+        gradient.addColorStop(1, colorBottom);
+        return gradient;
+    }
 
-    new Chart(document.getElementById('chartBorrowsDay'), {
-        type: 'bar',
-        data: {
-            labels: daysLabels,
-            datasets: [{
-                label: 'Borrow requests',
-                data: daysData,
-                backgroundColor: 'rgba(128, 0, 0, 0.6)',
-                borderColor: 'rgba(128, 0, 0, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: chartOptions
-    });
+    var softGrid = 'rgba(114, 0, 0, 0.12)';
+    var mutedTick = '#111111';
 
-    new Chart(document.getElementById('chartBorrowsMonth'), {
-        type: 'bar',
+    new Chart(document.getElementById('chartSiteTraffic'), {
+        type: 'line',
         data: {
             labels: monthsLabels,
-            datasets: [{
-                label: 'Borrow requests',
-                data: monthsData,
-                backgroundColor: 'rgba(212, 175, 55, 0.6)',
-                borderColor: 'rgba(212, 175, 55, 1)',
-                borderWidth: 1
-            }]
+            datasets: [
+                {
+                    label: 'Borrow Requests',
+                    data: monthsData,
+                    borderColor: '#720000',
+                    backgroundColor: function (ctx) {
+                        return makeGradient(ctx, 'rgba(114, 0, 0, 0.42)', 'rgba(114, 0, 0, 0.04)');
+                    },
+                    fill: true,
+                    tension: 0.42,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#720000',
+                    pointBorderWidth: 3,
+                    borderWidth: 3
+                },
+                {
+                    label: 'Registered Users',
+                    data: studentsMonthsData,
+                    borderColor: '#F6C600',
+                    backgroundColor: function (ctx) {
+                        return makeGradient(ctx, 'rgba(246, 198, 0, 0.38)', 'rgba(246, 198, 0, 0.04)');
+                    },
+                    fill: true,
+                    tension: 0.42,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#F6C600',
+                    pointBorderWidth: 3,
+                    borderWidth: 3
+                }
+            ]
         },
-        options: chartOptions
-    });
-
-    var pieData = {
-        labels: ['Available', 'Borrowed', 'Reserved', 'Overdue'],
-        datasets: [{
-            data: [
-                <?php echo (int) $book_status_available; ?>,
-                <?php echo (int) $book_status_borrowed; ?>,
-                <?php echo (int) $book_status_reserved; ?>,
-                <?php echo (int) $book_status_overdue; ?>
-            ],
-            backgroundColor: ['#198754', '#0d6efd', '#ffc107', '#dc3545'],
-            borderWidth: 1
-        }]
-    };
-    new Chart(document.getElementById('chartBookStatus'), {
-        type: 'pie',
-        data: pieData,
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: false }
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#fff',
+                    titleColor: '#111111',
+                    bodyColor: '#111111',
+                    borderColor: 'rgba(114, 0, 0, 0.25)',
+                    borderWidth: 1,
+                    displayColors: false,
+                    padding: 10
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: mutedTick, precision: 0 },
+                    grid: { color: softGrid, drawBorder: false }
+                },
+                x: {
+                    ticks: { color: mutedTick },
+                    grid: { display: false, drawBorder: false }
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('chartRegistrationRate'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Registration', 'Remaining'],
+            datasets: [{
+                data: [<?php echo $total_students > 0 ? 75 : 0; ?>, <?php echo $total_students > 0 ? 25 : 100; ?>],
+                backgroundColor: ['#720000', '#F6C600'],
+                borderWidth: 0,
+                hoverOffset: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '78%',
+            rotation: -120,
+            circumference: 300,
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('chartBorrowMix'), {
+        data: {
+            labels: daysLabels.slice(-16).map(function (_, index) { return index + 1; }),
+            datasets: [
+                {
+                    type: 'line',
+                    label: 'Borrow Trend',
+                    data: daysData.slice(-16),
+                    borderColor: '#720000',
+                    backgroundColor: 'rgba(114, 0, 0, 0.08)',
+                    fill: true,
+                    tension: 0.32,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#720000',
+                    pointBorderWidth: 2,
+                    borderWidth: 2
+                },
+                {
+                    type: 'bar',
+                    label: 'Daily Requests',
+                    data: daysData.slice(-16),
+                    backgroundColor: '#F6C600',
+                    borderRadius: 0,
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.76
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#fff',
+                    titleColor: '#111111',
+                    bodyColor: '#111111',
+                    borderColor: 'rgba(114, 0, 0, 0.25)',
+                    borderWidth: 1,
+                    displayColors: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { display: false, precision: 0 },
+                    grid: { display: false, drawBorder: false }
+                },
+                x: {
+                    ticks: { display: false },
+                    grid: { display: false, drawBorder: false }
+                }
             }
         }
     });

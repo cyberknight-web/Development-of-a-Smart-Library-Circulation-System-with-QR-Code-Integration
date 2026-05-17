@@ -28,13 +28,21 @@ function admin_render_header(string $page_title = 'Admin'): void
                 font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             }
             .sl-navbar {
-                background: linear-gradient(90deg, #FF6A00, #FF8C00, #FFA500);
+                background: linear-gradient(135deg, #720000, #9b1c1c);
             }
             .sl-navbar .navbar-brand, .sl-navbar .nav-link, .sl-navbar .navbar-text {
                 color: var(--sl-light) !important;
             }
             .sl-navbar .nav-link.active {
                 border-bottom: 2px solid var(--sl-accent);
+            }
+            .sl-brand-logo {
+                width: 36px;
+                height: 36px;
+                object-fit: contain;
+                background: #fff;
+                border-radius: 50%;
+                padding: 2px;
             }
             .sl-card {
                 border-radius: 12px;
@@ -46,12 +54,12 @@ function admin_render_header(string $page_title = 'Admin'): void
                 color: #000;
             }
             .btn-sl-primary {
-                background-color: #FF8C00;
+                background-color: #720000;
                 color: var(--sl-light);
                 border: none;
             }
             .btn-sl-primary:hover {
-                background-color: #FF6A00;
+                background-color: #520000;
                 color: var(--sl-light);
             }
             .btn-sl-accent {
@@ -60,7 +68,7 @@ function admin_render_header(string $page_title = 'Admin'): void
                 border: none;
             }
             .btn-sl-accent:hover {
-                background-color: #c19b2f;
+                background-color: #d8ad00;
                 color: #000;
             }
             .sl-page-header {
@@ -69,8 +77,8 @@ function admin_render_header(string $page_title = 'Admin'): void
             }
             .notification-badge {
                 display: inline-block;
-                background-color: #FF6A00;
-                color: white;
+                background-color: #F6C600;
+                color: #720000;
                 border-radius: 50%;
                 width: 20px;
                 height: 20px;
@@ -83,19 +91,27 @@ function admin_render_header(string $page_title = 'Admin'): void
             }
             @keyframes pulse {
                 0%, 100% {
-                    box-shadow: 0 0 0 0 rgba(255, 106, 0, 0.7);
+                    box-shadow: 0 0 0 0 rgba(246, 198, 0, 0.65);
                 }
                 50% {
-                    box-shadow: 0 0 0 8px rgba(255, 106, 0, 0);
+                    box-shadow: 0 0 0 8px rgba(246, 198, 0, 0);
                 }
             }
         </style>
+        <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modern-minimal.css">
+        <style>
+            .sl-admin .sl-navbar .navbar-brand::before {
+                content: none !important;
+                display: none !important;
+            }
+        </style>
     </head>
-    <body>
+    <body class="sl-admin">
     <nav class="navbar navbar-expand-lg sl-navbar mb-4">
         <div class="container-fluid">
-            <a class="navbar-brand fw-semibold" href="<?php echo BASE_URL; ?>/admin/dashboard.php">
-                EVSU Smart Library — Admin
+            <a class="navbar-brand fw-semibold d-flex align-items-center" href="<?php echo BASE_URL; ?>/admin/dashboard.php">
+                <img src="<?php echo BASE_URL; ?>/assets/images/evsu-logo.png" alt="EVSU logo" class="sl-brand-logo me-2">
+                <span>EVSU Smart Library — Admin</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
                 <span class="navbar-toggler-icon"></span>

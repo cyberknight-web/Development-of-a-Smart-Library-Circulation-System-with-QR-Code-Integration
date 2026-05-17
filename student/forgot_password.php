@@ -120,6 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .sending-message { display: none; }
         .sending-message.is-visible { display: block; }
     </style>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modern-minimal.css">
 </head>
 <body>
 <div class="card forgot-card w-100">

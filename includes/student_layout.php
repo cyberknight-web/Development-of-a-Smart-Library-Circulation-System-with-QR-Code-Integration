@@ -7,6 +7,24 @@ declare(strict_types=1);
 function student_render_header(string $page_title = 'Student'): void
 {
     $full_title = 'Smart Library | ' . $page_title;
+    $student_name = (string)($_SESSION['student_name'] ?? 'Student');
+    $student_initial = strtoupper(substr($student_name, 0, 1));
+    $student_profile_picture = null;
+
+    if (!empty($_SESSION['student_id'])) {
+        try {
+            $pdo_avatar = db_connect();
+            $stmt_avatar = $pdo_avatar->prepare('SELECT profile_picture FROM students WHERE id = :id LIMIT 1');
+            $stmt_avatar->execute([':id' => (int)$_SESSION['student_id']]);
+            $profile_picture = $stmt_avatar->fetchColumn();
+
+            if (is_string($profile_picture) && $profile_picture !== '') {
+                $student_profile_picture = basename($profile_picture);
+            }
+        } catch (Throwable $e) {
+            error_log('student navbar profile picture lookup failed: ' . $e->getMessage());
+        }
+    }
     ?>
     <!DOCTYPE html>
     <html lang="en">
@@ -24,21 +42,47 @@ function student_render_header(string $page_title = 'Student'): void
                 --sl-light: <?php echo COLOR_LIGHT; ?>;
             }
             body { background-color: #f5f5f5; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-            .sl-navbar { background: linear-gradient(135deg, var(--sl-primary), #4a0000); }
+            .sl-navbar { background: linear-gradient(135deg, #720000, #4d0000); }
             .sl-navbar .navbar-brand, .sl-navbar .nav-link, .sl-navbar .navbar-text { color: var(--sl-light) !important; }
             .sl-navbar .nav-link.active { border-bottom: 2px solid var(--sl-accent); }
+            .sl-brand-logo { width: 36px; height: 36px; object-fit: contain; background: #fff; border-radius: 50%; padding: 2px; }
+            .sl-user-avatar {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid rgba(246, 198, 0, 0.75);
+                background: #fff;
+                color: #720000;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.78rem;
+                font-weight: 800;
+                flex: 0 0 auto;
+            }
             .sl-card { border-radius: 12px; border: none; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); }
             .btn-sl-primary { background-color: var(--sl-primary); color: var(--sl-light); border: none; }
-            .btn-sl-primary:hover { background-color: #5c0000; color: var(--sl-light); }
+            .btn-sl-primary:hover { background-color: #520000; color: var(--sl-light); }
             .btn-sl-accent { background-color: var(--sl-accent); color: #000; border: none; }
-            .btn-sl-accent:hover { background-color: #c19b2f; color: #000; }
+            .btn-sl-accent:hover { background-color: #d8ad00; color: #000; }
             .sl-page-header { border-left: 4px solid var(--sl-accent); padding-left: 0.75rem; }
         </style>
+        <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modern-minimal.css">
+        <style>
+            .sl-student .sl-navbar .navbar-brand::before {
+                content: none !important;
+                display: none !important;
+            }
+        </style>
     </head>
-    <body>
+    <body class="sl-student">
     <nav class="navbar navbar-expand-lg sl-navbar mb-4">
         <div class="container-fluid">
-            <a class="navbar-brand fw-semibold" href="<?php echo BASE_URL; ?>/student/dashboard.php">EVSU Smart Library</a>
+            <a class="navbar-brand fw-semibold d-flex align-items-center" href="<?php echo BASE_URL; ?>/student/dashboard.php">
+                <img src="<?php echo BASE_URL; ?>/assets/images/evsu-logo.png" alt="EVSU logo" class="sl-brand-logo me-2">
+                <span>EVSU Smart Library</span>
+            </a>
             <button class="navbar-toggler navbar-dark" type="button" data-bs-toggle="collapse" data-bs-target="#studentNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -57,8 +101,19 @@ function student_render_header(string $page_title = 'Student'): void
                         <a class="nav-link" href="<?php echo BASE_URL; ?>/student/my_borrow_books.php">My Borrow Books</a>
                     </li>
                     <li class="nav-item dropdown ms-lg-3">
-                        <a class="nav-link dropdown-toggle navbar-text" href="#" id="studentUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <?php echo htmlspecialchars($_SESSION['student_name'] ?? 'Student', ENT_QUOTES, 'UTF-8'); ?>
+                        <a class="nav-link dropdown-toggle navbar-text d-inline-flex align-items-center gap-2" href="#" id="studentUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <?php if ($student_profile_picture !== null): ?>
+                                <img
+                                    src="<?php echo BASE_URL; ?>/uploads/profiles/<?php echo htmlspecialchars($student_profile_picture, ENT_QUOTES, 'UTF-8'); ?>"
+                                    alt="Profile picture"
+                                    class="sl-user-avatar"
+                                >
+                            <?php else: ?>
+                                <span class="sl-user-avatar" aria-hidden="true">
+                                    <?php echo htmlspecialchars($student_initial, ENT_QUOTES, 'UTF-8'); ?>
+                                </span>
+                            <?php endif; ?>
+                            <span><?php echo htmlspecialchars($student_name, ENT_QUOTES, 'UTF-8'); ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="studentUserDropdown">
                             <li><a class="dropdown-item" href="<?php echo BASE_URL; ?>/student/profile.php">My Profile</a></li>

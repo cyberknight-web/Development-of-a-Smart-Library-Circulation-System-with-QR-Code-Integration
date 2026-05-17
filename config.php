@@ -6,10 +6,12 @@
 declare(strict_types=1);
 
 const DB_HOST = 'localhost';
-const DB_NAME = 'u173310863_smartlibrarydb';
-const DB_USER = 'u173310863_encrypted'; // your Hostinger DB username
-const DB_PASS = 'SystemProject123';
+const DB_NAME = 'smartlibrary'; // your XAMPP DB name
+const DB_USER = 'root';
+const DB_PASS = '';
 const DB_CHARSET = 'utf8mb4';
+
+
 
 
 
@@ -35,8 +37,8 @@ const APP_TIMEZONE = 'Asia/Manila';
 date_default_timezone_set(APP_TIMEZONE);
 
 // EVSU theme colors (maroon, white, gold).
-const COLOR_PRIMARY = '#800000'; // maroon
-const COLOR_ACCENT = '#d4af37';  // gold
+const COLOR_PRIMARY = '#720000'; // dark red
+const COLOR_ACCENT = '#F6C600';  // golden yellow
 const COLOR_LIGHT = '#ffffff';   // white
 
 // Mail (for forgot password). Install PHPMailer: composer require phpmailer/phpmailer

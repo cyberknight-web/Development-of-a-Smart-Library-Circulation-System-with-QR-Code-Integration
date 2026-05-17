@@ -64,10 +64,19 @@ require_once __DIR__ . '/config.php';
             background-color: #5c0000;
             color: var(--sl-light);
         }
+
+        .portal-logo {
+            width: 96px;
+            height: 96px;
+            object-fit: contain;
+            margin-bottom: 1rem;
+        }
     </style>
+    <link rel="stylesheet" href="assets/css/modern-minimal.css">
 </head>
 <body>
     <div class="container text-center">
+        <img src="assets/images/evsu-logo.png" alt="EVSU logo" class="portal-logo">
         <h1 class="mb-2">EVSU Smart Library</h1>
         <p class="text-muted mb-4">Choose your portal</p>
 

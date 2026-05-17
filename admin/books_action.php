@@ -221,35 +221,41 @@ if ($action === 'update') {
     $copies_total = max(0, $copies_total);
     $copies_available = min(max(0, $copies_available), $copies_total);
 
-    $upd = $pdo->prepare(
-        'UPDATE books SET
-            accession_no = :accession_no,
-            isbn = :isbn,
-            title = :title,
-            author = :author,
-            publisher = :publisher,
-            publication_year = :publication_year,
-            category = :category,
-            location = :location,
-            copies_total = :copies_total,
-            copies_available = :copies_available,
-            status = :status
-         WHERE id = :id'
-    );
-    $upd->execute([
-        ':accession_no' => $accession_no,
-        ':isbn' => $isbn,
-        ':title' => $title,
-        ':author' => $author,
-        ':publisher' => $publisher,
-        ':publication_year' => $publication_year,
-        ':category' => $category,
-        ':location' => $location,
-        ':copies_total' => $copies_total,
-        ':copies_available' => $copies_available,
-        ':status' => $status,
-        ':id' => $book_id,
-    ]);
+    try {
+        $upd = $pdo->prepare(
+            'UPDATE books SET
+                accession_no = :accession_no,
+                isbn = :isbn,
+                title = :title,
+                author = :author,
+                publisher = :publisher,
+                publication_year = :publication_year,
+                category = :category,
+                location = :location,
+                copies_total = :copies_total,
+                copies_available = :copies_available,
+                status = :status
+             WHERE id = :id'
+        );
+        $upd->execute([
+            ':accession_no' => $accession_no,
+            ':isbn' => $isbn,
+            ':title' => $title,
+            ':author' => $author,
+            ':publisher' => $publisher,
+            ':publication_year' => $publication_year,
+            ':category' => $category,
+            ':location' => $location,
+            ':copies_total' => $copies_total,
+            ':copies_available' => $copies_available,
+            ':status' => $status,
+            ':id' => $book_id,
+        ]);
+    } catch (Throwable $e) {
+        error_log('Book update failed: ' . $e->getMessage());
+        header('Location: ' . BASE_URL . '/admin/books.php?status=update_error');
+        exit;
+    }
     header('Location: ' . BASE_URL . '/admin/books.php?status=updated');
     exit;
 }
