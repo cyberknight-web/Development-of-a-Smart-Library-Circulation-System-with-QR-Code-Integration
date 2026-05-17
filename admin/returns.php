@@ -177,7 +177,7 @@ admin_render_header('Returned Books');
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">No returned borrows yet.</td>
+                            <td colspan="7" class="text-center text-muted py-4">No returned borrows yet.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

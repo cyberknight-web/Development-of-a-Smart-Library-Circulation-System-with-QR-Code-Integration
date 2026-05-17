@@ -5,61 +5,14 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/admin_auth.php';
 require_once __DIR__ . '/../includes/admin_layout.php';
+require_once __DIR__ . '/../includes/borrow_requests_helper.php';
 
 require_admin_login();
 
 $pdo = db_connect();
 
-$stmt = $pdo->prepare(
-    "SELECT br.*, s.name AS student_name, s.student_id AS student_code, s.course, s.section, s.email,
-            (SELECT GROUP_CONCAT(b.title ORDER BY b.title SEPARATOR ', ')
-             FROM borrow_request_items bri
-             JOIN books b ON b.id = bri.book_id
-             WHERE bri.borrow_request_id = br.id) AS book_titles,
-            (SELECT GROUP_CONCAT(
-                        DISTINCT COALESCE(NULLIF(TRIM(b.category), ''), 'Uncategorized')
-                        ORDER BY COALESCE(NULLIF(TRIM(b.category), ''), 'Uncategorized') SEPARATOR ', '
-                    )
-             FROM borrow_request_items bri
-             JOIN books b ON b.id = bri.book_id
-             WHERE bri.borrow_request_id = br.id) AS book_categories,
-            (SELECT COALESCE(SUM(bri.quantity), 0)
-             FROM borrow_request_items bri
-             WHERE bri.borrow_request_id = br.id) AS total_copies,
-            (SELECT COALESCE(SUM(bri.quantity), 0)
-             FROM borrow_requests br2
-             JOIN borrow_request_items bri ON bri.borrow_request_id = br2.id
-             WHERE br2.student_id = s.id AND br2.status IN ('pending', 'approved', 'claimed')) AS active_borrows
-     FROM borrow_requests br
-     JOIN students s ON s.id = br.student_id
-     WHERE br.status = 'pending'
-     ORDER BY br.requested_at ASC"
-);
-
-$stmt->execute();
-$requests = $stmt->fetchAll();
-
-$request_book_availability = [];
-
-if ($requests) {
-    $request_ids = array_map('intval', array_column($requests, 'id'));
-    $placeholders = implode(',', array_fill(0, count($request_ids), '?'));
-
-    $book_stmt = $pdo->prepare(
-        "SELECT bri.borrow_request_id, b.title, b.copies_available
-         FROM borrow_request_items bri
-         JOIN books b ON b.id = bri.book_id
-         WHERE bri.borrow_request_id IN ($placeholders)
-         ORDER BY b.title ASC"
-    );
-
-    $book_stmt->execute($request_ids);
-
-    foreach ($book_stmt->fetchAll(PDO::FETCH_ASSOC) as $book_row) {
-        $request_id = (int)$book_row['borrow_request_id'];
-        $request_book_availability[$request_id][] = $book_row;
-    }
-}
+$requests = sl_get_pending_borrow_requests($pdo);
+$request_book_availability = sl_get_request_book_availability($pdo, $requests);
 
 $status = $_GET['status'] ?? null;
 $error = $_GET['error'] ?? null;
@@ -153,7 +106,7 @@ admin_render_header('Borrow Requests');
     .sl-borrow-requests-table {
         table-layout: fixed;
         width: 100%;
-        font-size: clamp(0.74rem, 0.2vw + 0.7rem, 0.86rem);
+        font-size: 0.84rem;
     }
 
     .sl-borrow-requests-table th,
@@ -232,7 +185,7 @@ admin_render_header('Borrow Requests');
 
     @media (max-width: 1199.98px) {
         .sl-borrow-requests-table {
-            font-size: clamp(0.72rem, 0.25vw + 0.66rem, 0.82rem);
+            font-size: 0.8rem;
         }
 
         .sl-borrow-requests-table th,
@@ -316,7 +269,7 @@ admin_render_header('Borrow Requests');
                 Pending Borrow Requests
             </h5>
 
-            <span class="sl-borrow-chip">
+            <span class="sl-borrow-chip" id="pendingBorrowChip">
                 <?php echo count($requests); ?> Pending
             </span>
         </div>
@@ -340,7 +293,7 @@ admin_render_header('Borrow Requests');
                     </tr>
                 </thead>
 
-                <tbody>
+                <tbody id="borrowRequestsTableBody">
                     <?php if ($requests): ?>
                         <?php foreach ($requests as $r): ?>
                             <tr>
@@ -484,7 +437,9 @@ admin_render_header('Borrow Requests');
 
 <script>
 (function () {
-    var copyButtons = document.querySelectorAll('.js-qr-copy');
+    var tableBody = document.getElementById('borrowRequestsTableBody');
+    var pendingChip = document.getElementById('pendingBorrowChip');
+    var endpoint = '<?php echo BASE_URL; ?>/admin/borrow_requests_live.php';
 
     function copyTextToClipboard(text) {
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -518,57 +473,96 @@ admin_render_header('Borrow Requests');
         });
     }
 
-    copyButtons.forEach(function (button) {
-        button.addEventListener('click', function () {
-            var tokenCell = button.closest('td');
-            var tokenEl = tokenCell ? tokenCell.querySelector('.js-qr-token') : null;
-            var messageEl = tokenCell ? tokenCell.querySelector('.js-copy-message') : null;
+    document.addEventListener('click', function (event) {
+        var button = event.target.closest('.js-qr-copy');
 
-            if (!tokenEl) {
-                return;
+        if (!button) {
+            return;
+        }
+
+        var tokenCell = button.closest('td');
+        var tokenEl = tokenCell ? tokenCell.querySelector('.js-qr-token') : null;
+        var messageEl = tokenCell ? tokenCell.querySelector('.js-copy-message') : null;
+
+        if (!tokenEl) {
+            return;
+        }
+
+        var rawToken = tokenEl.getAttribute('data-token') || '';
+
+        if (rawToken === '') {
+            return;
+        }
+
+        copyTextToClipboard(rawToken).then(function () {
+            if (messageEl) {
+                messageEl.textContent = 'QR Token copied.';
             }
 
-            var rawToken = tokenEl.getAttribute('data-token') || '';
+            button.classList.remove('btn-outline-secondary');
+            button.classList.add('btn-success');
 
-            if (rawToken === '') {
-                return;
+            setTimeout(function () {
+                if (messageEl) {
+                    messageEl.textContent = '';
+                }
+
+                button.classList.remove('btn-success');
+                button.classList.add('btn-outline-secondary');
+            }, 1600);
+        }).catch(function () {
+            if (messageEl) {
+                messageEl.textContent = 'Copy failed.';
             }
 
-            copyTextToClipboard(rawToken).then(function () {
+            button.classList.remove('btn-outline-secondary');
+            button.classList.add('btn-danger');
+
+            setTimeout(function () {
                 if (messageEl) {
-                    messageEl.textContent = 'QR Token copied.';
+                    messageEl.textContent = '';
                 }
 
-                button.classList.remove('btn-outline-secondary');
-                button.classList.add('btn-success');
-
-                setTimeout(function () {
-                    if (messageEl) {
-                        messageEl.textContent = '';
-                    }
-
-                    button.classList.remove('btn-success');
-                    button.classList.add('btn-outline-secondary');
-                }, 1600);
-            }).catch(function () {
-                if (messageEl) {
-                    messageEl.textContent = 'Copy failed.';
-                }
-
-                button.classList.remove('btn-outline-secondary');
-                button.classList.add('btn-danger');
-
-                setTimeout(function () {
-                    if (messageEl) {
-                        messageEl.textContent = '';
-                    }
-
-                    button.classList.remove('btn-danger');
-                    button.classList.add('btn-outline-secondary');
-                }, 1500);
-            });
+                button.classList.remove('btn-danger');
+                button.classList.add('btn-outline-secondary');
+            }, 1500);
         });
     });
+
+    function refreshBorrowRequests() {
+        if (!tableBody) {
+            return;
+        }
+
+        fetch(endpoint, {
+            headers: { 'Accept': 'application/json' },
+            cache: 'no-store'
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Request failed');
+                }
+
+                return response.json();
+            })
+            .then(function (data) {
+                var count = Number(data.pending_count || 0);
+
+                if (typeof data.rows_html === 'string') {
+                    tableBody.innerHTML = data.rows_html;
+                }
+
+                if (pendingChip) {
+                    pendingChip.textContent = count + ' Pending';
+                }
+            })
+            .catch(function () {
+                // Leave the current table visible if the connection briefly drops.
+            });
+    }
+
+    refreshBorrowRequests();
+    window.setInterval(refreshBorrowRequests, 10000);
 })();
 </script>
 

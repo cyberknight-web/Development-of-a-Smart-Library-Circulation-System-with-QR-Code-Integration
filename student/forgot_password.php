@@ -18,9 +18,12 @@ $message = null;
 $is_error = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
+    $email = strtolower(trim($_POST['email'] ?? ''));
     if ($email === '') {
         $message = 'Please enter your registered email.';
+        $is_error = true;
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $message = 'Please enter a valid email address.';
         $is_error = true;
     } else {
         try {
@@ -35,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $is_error = true;
             } else {
                 $token = bin2hex(random_bytes(32));
-                $expires = (new DateTimeImmutable('now'))->modify('+1 hour')->format('Y-m-d H:i:s');
+                $expires = (new DateTimeImmutable('now', new DateTimeZone(APP_TIMEZONE)))->modify('+1 hour')->format('Y-m-d H:i:s');
 
                 $del = $pdo->prepare('DELETE FROM password_reset_tokens WHERE student_id = :id');
                 $del->execute([':id' => $student['id']]);
@@ -49,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $body .= '<p><a href="' . htmlspecialchars($reset_link, ENT_QUOTES, 'UTF-8') . '">Reset Password</a></p>';
                 $body .= '<p>If you did not request this, ignore this email.</p>';
 
-                $sent = send_mail($email, $student['name'], 'Smart Library – Reset Password', $body);
+                $sent = send_mail($email, $student['name'], 'Smart Library - Reset Password', $body);
                 if ($sent) {
                     $message = 'If that email is registered, we sent a reset link. Check your inbox.';
                 } else {
@@ -59,6 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } catch (PDOException $e) {
             error_log('Forgot password DB error: ' . $e->getMessage());
+            $message = 'We could not process your request right now. Please try again later.';
+            $is_error = true;
+        } catch (Throwable $e) {
+            error_log('Forgot password error: ' . $e->getMessage());
             $message = 'We could not process your request right now. Please try again later.';
             $is_error = true;
         }
@@ -76,8 +83,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/responsive.css">
     <style>
         :root { --sl-primary: <?php echo COLOR_PRIMARY; ?>; --sl-accent: <?php echo COLOR_ACCENT; ?>; --sl-light: <?php echo COLOR_LIGHT; ?>; }
-        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f5f5f5; }
-        .card { max-width: 420px; border-radius: 12px; border: none; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.9)),
+                url('<?php echo BASE_URL; ?>/assets/images/backgroundsmart.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            padding: 1rem;
+        }
+        .forgot-card {
+            max-width: 440px;
+            border-radius: 12px;
+            border: 1px solid rgba(128, 0, 0, 0.08);
+            box-shadow: 0 18px 45px rgba(0,0,0,0.14);
+            overflow: hidden;
+        }
+        .forgot-header {
+            background: linear-gradient(135deg, var(--sl-primary), #4a0000);
+            color: var(--sl-light);
+            padding: 1.35rem 1.5rem;
+        }
+        .forgot-header h1 {
+            font-size: 1.35rem;
+            margin: 0;
+        }
+        .forgot-header p {
+            color: rgba(255, 255, 255, 0.86);
+            margin: 0.25rem 0 0;
+        }
         .btn-sl-primary { background-color: var(--sl-primary); color: var(--sl-light); border: none; }
         .btn-sl-primary:hover { background-color: #5c0000; color: var(--sl-light); }
         .sending-message { display: none; }
@@ -85,9 +122,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-<div class="card w-100">
+<div class="card forgot-card w-100">
+    <div class="forgot-header">
+        <h1>Reset Password</h1>
+        <p class="small">EVSU Smart Library student account</p>
+    </div>
     <div class="card-body p-4">
-        <h5 class="card-title mb-3">Forgot Password</h5>
         <p class="text-muted small">Enter your registered email. We will send you a link to create a new password.</p>
         <?php if ($message): ?>
             <div class="alert alert-<?php echo $is_error ? 'danger' : 'success'; ?>">
@@ -98,7 +138,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" id="email" name="email" required
-                       value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                       autocomplete="email"
+                       value="<?php echo htmlspecialchars($email ?? '', ENT_QUOTES, 'UTF-8'); ?>">
             </div>
             <div class="alert alert-info py-2 sending-message" id="sendingResetMessage" role="status" aria-live="polite">
                 Sending reset link...

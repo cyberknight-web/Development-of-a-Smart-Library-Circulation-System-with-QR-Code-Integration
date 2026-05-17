@@ -88,6 +88,32 @@ function student_render_footer(): void
                 table.parentNode.insertBefore(wrapper, table);
                 wrapper.appendChild(table);
             }
+
+            const wrapper = table.closest('.table-responsive');
+            if (wrapper) {
+                wrapper.classList.add('sl-card-table');
+            }
+
+            const headers = Array.from(table.querySelectorAll('thead th')).map(function (header) {
+                return header.textContent.replace(/\s+/g, ' ').trim();
+            });
+
+            table.querySelectorAll('tbody tr').forEach(function (row) {
+                const cells = Array.from(row.children).filter(function (cell) {
+                    return cell.tagName && cell.tagName.toLowerCase() === 'td';
+                });
+
+                if (cells.length === 1 && Number(cells[0].getAttribute('colspan') || 1) > 1) {
+                    cells[0].setAttribute('data-label', '');
+                    return;
+                }
+
+                cells.forEach(function (cell, index) {
+                    if (!cell.hasAttribute('data-label')) {
+                        cell.setAttribute('data-label', headers[index] || '');
+                    }
+                });
+            });
         });
     </script>
     </body>

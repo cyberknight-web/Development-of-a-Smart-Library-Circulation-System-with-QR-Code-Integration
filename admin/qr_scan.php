@@ -428,12 +428,9 @@ admin_render_header('QR Scan');
     </div>
 </div>
 
-<?php
-admin_render_footer();
-?>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
-(function() {
+document.addEventListener('DOMContentLoaded', function() {
     var qrInput = document.getElementById('qr');
     var qrForm = document.getElementById('qrForm');
     var readerDiv = document.getElementById('qr-reader');
@@ -471,7 +468,13 @@ admin_render_footer();
         }
         scanner.start(
             { facingMode: 'environment' },
-            { fps: 10, qrbox: { width: 250, height: 250 } },
+            {
+                fps: 10,
+                qrbox: function(viewfinderWidth, viewfinderHeight) {
+                    var size = Math.floor(Math.min(viewfinderWidth, viewfinderHeight, 250) * 0.85);
+                    return { width: Math.max(size, 140), height: Math.max(size, 140) };
+                }
+            },
             function(decodedText) {
                 qrInput.value = decodedText;
                 showLoadingMessage();
@@ -556,6 +559,10 @@ admin_render_footer();
             }
         });
     }
-})();
+});
 </script>
+
+<?php
+admin_render_footer();
+?>
 

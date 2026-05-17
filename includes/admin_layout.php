@@ -112,14 +112,14 @@ function admin_render_header(string $page_title = 'Admin'): void
                         <a class="nav-link" href="<?php echo BASE_URL; ?>/admin/books.php">Books</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="<?php echo BASE_URL; ?>/admin/borrow_requests.php">
+                        <a class="nav-link" href="<?php echo BASE_URL; ?>/admin/borrow_requests.php" id="borrowRequestsNavLink">
                             Borrow Requests
                             <?php 
                                 $pdo_badge = db_connect();
                                 $pending_count = (int) $pdo_badge->query("SELECT COUNT(*) FROM borrow_requests WHERE status = 'pending'")->fetchColumn();
                                 if ($pending_count > 0): 
                             ?>
-                                <span class="notification-badge"><?php echo $pending_count; ?></span>
+                                <span class="notification-badge" id="borrowRequestsBadge"><?php echo $pending_count; ?></span>
                             <?php endif; ?>
                         </a>
                     </li>
@@ -166,7 +166,86 @@ function admin_render_footer(): void
                 table.parentNode.insertBefore(wrapper, table);
                 wrapper.appendChild(table);
             }
+
+            const wrapper = table.closest('.table-responsive');
+            if (wrapper) {
+                wrapper.classList.add('sl-card-table');
+            }
+
+            const headers = Array.from(table.querySelectorAll('thead th')).map(function (header) {
+                return header.textContent.replace(/\s+/g, ' ').trim();
+            });
+
+            table.querySelectorAll('tbody tr').forEach(function (row) {
+                const cells = Array.from(row.children).filter(function (cell) {
+                    return cell.tagName && cell.tagName.toLowerCase() === 'td';
+                });
+
+                if (cells.length === 1 && Number(cells[0].getAttribute('colspan') || 1) > 1) {
+                    cells[0].setAttribute('data-label', '');
+                    return;
+                }
+
+                cells.forEach(function (cell, index) {
+                    if (!cell.hasAttribute('data-label')) {
+                        cell.setAttribute('data-label', headers[index] || '');
+                    }
+                });
+            });
         });
+
+        (function () {
+            var navLink = document.getElementById('borrowRequestsNavLink');
+            var endpoint = '<?php echo BASE_URL; ?>/admin/borrow_requests_live.php?count_only=1';
+
+            function updateBadge(count) {
+                if (!navLink) {
+                    return;
+                }
+
+                var badge = document.getElementById('borrowRequestsBadge');
+
+                if (count > 0) {
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'notification-badge';
+                        badge.id = 'borrowRequestsBadge';
+                        navLink.appendChild(document.createTextNode(' '));
+                        navLink.appendChild(badge);
+                    }
+
+                    badge.textContent = String(count);
+                    return;
+                }
+
+                if (badge) {
+                    badge.remove();
+                }
+            }
+
+            function refreshBorrowBadge() {
+                fetch(endpoint, {
+                    headers: { 'Accept': 'application/json' },
+                    cache: 'no-store'
+                })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error('Request failed');
+                        }
+
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        updateBadge(Number(data.pending_count || 0));
+                    })
+                    .catch(function () {
+                        // Keep the current badge if the network is briefly unavailable.
+                    });
+            }
+
+            refreshBorrowBadge();
+            window.setInterval(refreshBorrowBadge, 10000);
+        })();
     </script>
     </body>
     </html>

@@ -204,7 +204,7 @@ student_render_header('Your QR Code');
     </div>
 </div>
 
-<div class="mt-4">
+<div class="mt-4 sl-bottom-actions">
     <a href="<?php echo BASE_URL; ?>/student/dashboard.php" class="btn btn-sl-primary">
         Back to Dashboard
     </a>
