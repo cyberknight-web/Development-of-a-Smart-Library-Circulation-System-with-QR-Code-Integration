@@ -9,6 +9,10 @@ require_once __DIR__ . '/../includes/admin_layout.php';
 require_admin_login();
 
 $errors = [];
+$field_errors = [
+    'student_id' => '',
+    'email' => '',
+];
 $success_message = null;
 
 $name = '';
@@ -58,13 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt_id = $pdo->prepare('SELECT 1 FROM students WHERE student_id = :student_id LIMIT 1');
         $stmt_id->execute([':student_id' => $student_id]);
         if ($stmt_id->fetch()) {
-            $errors[] = 'Student ID already exists. Please use a unique Student ID.';
+            $field_errors['student_id'] = 'Student ID must be unique.';
+            $errors[] = 'Duplicate Student ID. System blocks submission.';
         }
 
         $stmt_email = $pdo->prepare('SELECT 1 FROM students WHERE email = :email LIMIT 1');
         $stmt_email->execute([':email' => $email]);
         if ($stmt_email->fetch()) {
-            $errors[] = 'Email already exists. Please use a unique email.';
+            $field_errors['email'] = 'Email must be unique.';
+            $errors[] = 'Duplicate Email. System displays validation error.';
         }
 
         $stmt_username = $pdo->prepare('SELECT 1 FROM students WHERE username = :username LIMIT 1');
@@ -96,7 +102,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success_message = 'Student account created successfully.';
             $name = $student_id = $course = $section = $email = $username = '';
         } catch (PDOException $e) {
-            $errors[] = 'Failed to create student account. Please try again.';
+            if ($e->getCode() === '23000') {
+                $message = $e->getMessage();
+                if (stripos($message, 'student_id') !== false) {
+                    $field_errors['student_id'] = 'Student ID must be unique.';
+                    $errors[] = 'Duplicate Student ID. System blocks submission.';
+                } elseif (stripos($message, 'email') !== false) {
+                    $field_errors['email'] = 'Email must be unique.';
+                    $errors[] = 'Duplicate Email. System displays validation error.';
+                } else {
+                    $errors[] = 'Duplicate account details. Please check the form.';
+                }
+            } else {
+                $errors[] = 'Failed to create student account. Please try again.';
+            }
             error_log('Create student error: ' . $e->getMessage());
         }
     }
@@ -187,13 +206,16 @@ admin_render_header('Create Student Account');
                                 <label for="student_id" class="form-label fw-semibold">Student ID <span class="text-danger">*</span></label>
                                 <input
                                     type="text"
-                                    class="form-control"
+                                    class="form-control<?php echo $field_errors['student_id'] ? ' is-invalid' : ''; ?>"
                                     id="student_id"
                                     name="student_id"
                                     placeholder="e.g., 2024001"
                                     value="<?php echo htmlspecialchars($student_id, ENT_QUOTES, 'UTF-8'); ?>"
                                     required
                                 >
+                                <?php if ($field_errors['student_id']): ?>
+                                    <div class="invalid-feedback"><?php echo htmlspecialchars($field_errors['student_id'], ENT_QUOTES, 'UTF-8'); ?></div>
+                                <?php endif; ?>
                             </div>
                             <div class="col-md-4">
                                 <label for="course" class="form-label fw-semibold">Course <span class="text-danger">*</span></label>
@@ -223,13 +245,16 @@ admin_render_header('Create Student Account');
                                 <label for="email" class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
                                 <input
                                     type="email"
-                                    class="form-control"
+                                    class="form-control<?php echo $field_errors['email'] ? ' is-invalid' : ''; ?>"
                                     id="email"
                                     name="email"
                                     placeholder="e.g., student@example.com"
                                     value="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>"
                                     required
                                 >
+                                <?php if ($field_errors['email']): ?>
+                                    <div class="invalid-feedback"><?php echo htmlspecialchars($field_errors['email'], ENT_QUOTES, 'UTF-8'); ?></div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

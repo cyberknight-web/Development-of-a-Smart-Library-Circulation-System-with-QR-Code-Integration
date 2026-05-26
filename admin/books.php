@@ -59,12 +59,12 @@ $status = $_GET['status'] ?? null;
 $status_message = null;
 $status_alert = 'danger';
 if ($status === 'import_success') {
-    $status_message = 'Books imported successfully from CSV file.';
+    $status_message = 'Import Successfully.';
     $status_alert = 'success';
 } elseif ($status === 'import_error') {
-    $status_message = 'There was a problem with the file.';
+    $status_message = 'Invalid file format.';
 } elseif ($status === 'invalid_format') {
-    $status_message = 'There was a problem with the file.';
+    $status_message = 'Invalid file format.';
 } elseif ($status === 'updated') {
     $status_message = 'Book updated successfully.';
     $status_alert = 'success';
