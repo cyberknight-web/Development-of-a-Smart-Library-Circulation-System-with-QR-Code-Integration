@@ -32,6 +32,16 @@ if (!empty($cart)) {
 }
 
 $errors = [];
+$borrow_form_errors = $_SESSION['borrow_form_errors'] ?? [];
+$borrow_form_values = array_merge([
+    'name' => $_SESSION['student_name'] ?? '',
+    'student_code' => $_SESSION['student_code'] ?? '',
+    'course' => $_SESSION['student_course'] ?? '',
+    'section' => $_SESSION['student_section'] ?? '',
+    'email' => $_SESSION['student_email'] ?? '',
+    'notes' => '',
+], $_SESSION['borrow_form_values'] ?? []);
+unset($_SESSION['borrow_form_errors'], $_SESSION['borrow_form_values']);
 
 /** @noinspection PhpUndefinedFunctionInspection */
 student_render_header('My Shelves');
@@ -104,9 +114,6 @@ student_render_header('My Shelves');
         border-color: #800000;
         box-shadow: 0 0 0 0.2rem rgba(128, 0, 0, 0.15);
     }
-    .sl-borrow-form .form-control[readonly] {
-        background-color: #fffaf2;
-    }
 </style>
 
 <div class="row mb-4">
@@ -130,6 +137,17 @@ if ($shelves_error === 'cart'): ?>
     <div class="alert alert-warning sl-shelves-alert">
         Borrowing limit reached. You can borrow only the remaining number of books not yet returned.
         Return books first, then try again.
+    </div>
+<?php endif; ?>
+
+<?php if ($borrow_form_errors): ?>
+    <div class="alert alert-danger sl-shelves-alert">
+        <strong>Validation error.</strong>
+        <ul class="mb-0 mt-2">
+            <?php foreach ($borrow_form_errors as $error): ?>
+                <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
+            <?php endforeach; ?>
+        </ul>
     </div>
 <?php endif; ?>
 
@@ -168,28 +186,34 @@ if ($shelves_error === 'cart'): ?>
                 <p class="text-muted small">Your details (from your account). Click Generate QR Code to create your borrow request.</p>
                 <form method="post" action="<?php echo BASE_URL; ?>/student/borrow_submit.php" class="sl-borrow-form" id="borrowRequestForm">
                     <div class="mb-3">
-                        <label class="form-label">Name</label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($_SESSION['student_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" readonly>
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="<?php echo htmlspecialchars($borrow_form_values['name'], ENT_QUOTES, 'UTF-8'); ?>" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Student ID</label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($_SESSION['student_code'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" readonly>
+                        <label for="student_code" class="form-label">Student ID</label>
+                        <input type="text" class="form-control<?php echo in_array('Student ID must be unique.', $borrow_form_errors, true) ? ' is-invalid' : ''; ?>" id="student_code" name="student_code" value="<?php echo htmlspecialchars($borrow_form_values['student_code'], ENT_QUOTES, 'UTF-8'); ?>" required>
+                        <?php if (in_array('Student ID must be unique.', $borrow_form_errors, true)): ?>
+                            <div class="invalid-feedback">Student ID must be unique.</div>
+                        <?php endif; ?>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Course</label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($_SESSION['student_course'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" readonly>
+                        <label for="course" class="form-label">Course</label>
+                        <input type="text" class="form-control" id="course" name="course" value="<?php echo htmlspecialchars($borrow_form_values['course'], ENT_QUOTES, 'UTF-8'); ?>" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Year / Section</label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($_SESSION['student_section'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" readonly>
+                        <label for="section" class="form-label">Year / Section</label>
+                        <input type="text" class="form-control" id="section" name="section" value="<?php echo htmlspecialchars($borrow_form_values['section'], ENT_QUOTES, 'UTF-8'); ?>" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($_SESSION['student_email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" readonly>
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control<?php echo in_array('Email must be unique.', $borrow_form_errors, true) ? ' is-invalid' : ''; ?>" id="email" name="email" value="<?php echo htmlspecialchars($borrow_form_values['email'], ENT_QUOTES, 'UTF-8'); ?>" required>
+                        <?php if (in_array('Email must be unique.', $borrow_form_errors, true)): ?>
+                            <div class="invalid-feedback">Email must be unique.</div>
+                        <?php endif; ?>
                     </div>
                     <div class="mb-3">
                         <label for="notes" class="form-label">Additional Notes (Optional)</label>
-                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Add any special instructions or notes for your borrow request..." maxlength="500"></textarea>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Add any special instructions or notes for your borrow request..." maxlength="500"><?php echo htmlspecialchars($borrow_form_values['notes'], ENT_QUOTES, 'UTF-8'); ?></textarea>
                         <small class="form-text text-muted">Max 500 characters</small>
                     </div>
                     <div class="d-grid">

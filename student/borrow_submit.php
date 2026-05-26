@@ -23,6 +23,61 @@ if (empty($cart) || count($cart) > 3) {
 $pdo = db_connect();
 $student_id = (int)$_SESSION['student_id'];
 
+$form_values = [
+    'name' => trim($_POST['name'] ?? ''),
+    'student_code' => trim($_POST['student_code'] ?? ''),
+    'course' => trim($_POST['course'] ?? ''),
+    'section' => trim($_POST['section'] ?? ''),
+    'email' => strtolower(trim($_POST['email'] ?? '')),
+    'notes' => trim($_POST['notes'] ?? ''),
+];
+
+$form_errors = [];
+if ($form_values['name'] === '') {
+    $form_errors[] = 'Name is required.';
+}
+if ($form_values['student_code'] === '') {
+    $form_errors[] = 'Student ID is required.';
+}
+if ($form_values['course'] === '') {
+    $form_errors[] = 'Course is required.';
+}
+if ($form_values['section'] === '') {
+    $form_errors[] = 'Year / Section is required.';
+}
+if ($form_values['email'] === '') {
+    $form_errors[] = 'Email is required.';
+} elseif (!filter_var($form_values['email'], FILTER_VALIDATE_EMAIL)) {
+    $form_errors[] = 'Email format is invalid.';
+}
+
+if (!$form_errors) {
+    $stmt = $pdo->prepare('SELECT 1 FROM students WHERE student_id = :student_code AND id <> :id LIMIT 1');
+    $stmt->execute([
+        ':student_code' => $form_values['student_code'],
+        ':id' => $student_id,
+    ]);
+    if ($stmt->fetch()) {
+        $form_errors[] = 'Student ID must be unique.';
+    }
+
+    $stmt = $pdo->prepare('SELECT 1 FROM students WHERE email = :email AND id <> :id LIMIT 1');
+    $stmt->execute([
+        ':email' => $form_values['email'],
+        ':id' => $student_id,
+    ]);
+    if ($stmt->fetch()) {
+        $form_errors[] = 'Email must be unique.';
+    }
+}
+
+if ($form_errors) {
+    $_SESSION['borrow_form_errors'] = $form_errors;
+    $_SESSION['borrow_form_values'] = $form_values;
+    header('Location: ' . BASE_URL . '/student/shelves.php');
+    exit;
+}
+
 // Enforce active borrowing limit: count all books that are not yet returned (pending, approved, or claimed).
 try {
     $stmt = $pdo->prepare(
@@ -60,12 +115,26 @@ if (empty($valid_ids)) {
 }
 
 $qr_token = bin2hex(random_bytes(32));
-$notes = trim($_POST['notes'] ?? '');
+$notes = $form_values['notes'];
 if (strlen($notes) > 500) {
     $notes = substr($notes, 0, 500);
 }
 $pdo->beginTransaction();
 try {
+    $update_student = $pdo->prepare(
+        'UPDATE students
+         SET name = :name, student_id = :student_code, course = :course, section = :section, email = :email
+         WHERE id = :id'
+    );
+    $update_student->execute([
+        ':name' => $form_values['name'],
+        ':student_code' => $form_values['student_code'],
+        ':course' => $form_values['course'],
+        ':section' => $form_values['section'],
+        ':email' => $form_values['email'],
+        ':id' => $student_id,
+    ]);
+
     $ins = $pdo->prepare(
         'INSERT INTO borrow_requests (student_id, qr_token, status, notes) VALUES (:sid, :token, :status, :notes)'
     );
@@ -83,9 +152,28 @@ try {
         $item_ins->execute([':req_id' => $request_id, ':book_id' => (int)$book_id]);
     }
     $pdo->commit();
+    $_SESSION['student_name'] = $form_values['name'];
+    $_SESSION['student_code'] = $form_values['student_code'];
+    $_SESSION['student_course'] = $form_values['course'];
+    $_SESSION['student_section'] = $form_values['section'];
+    $_SESSION['student_email'] = $form_values['email'];
 } catch (Throwable $e) {
     $pdo->rollBack();
     error_log('Borrow submit error: ' . $e->getMessage());
+    if ($e instanceof PDOException && $e->getCode() === '23000') {
+        $message = $e->getMessage();
+        if (stripos($message, 'student_id') !== false) {
+            $form_errors[] = 'Student ID must be unique.';
+        } elseif (stripos($message, 'email') !== false) {
+            $form_errors[] = 'Email must be unique.';
+        }
+        if ($form_errors) {
+            $_SESSION['borrow_form_errors'] = $form_errors;
+            $_SESSION['borrow_form_values'] = $form_values;
+            header('Location: ' . BASE_URL . '/student/shelves.php');
+            exit;
+        }
+    }
     header('Location: ' . BASE_URL . '/student/shelves.php?error=submit');
     exit;
 }

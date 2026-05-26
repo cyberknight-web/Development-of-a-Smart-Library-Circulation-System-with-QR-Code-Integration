@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/admin_auth.php';
+require_once __DIR__ . '/../includes/mail_helper.php';
 
 require_admin_login();
 
@@ -70,6 +71,7 @@ if ($action === 'approve') {
         exit;
     }
     
+    $approved_books = [];
     $pdo->beginTransaction();
     try {
         
@@ -84,9 +86,18 @@ if ($action === 'approve') {
             ':id' => $request_id,
         ]);
 
-        $items = $pdo->prepare("SELECT book_id, quantity FROM borrow_request_items WHERE borrow_request_id = :id");
+        $items = $pdo->prepare(
+            "SELECT bri.book_id, bri.quantity, b.title
+             FROM borrow_request_items bri
+             JOIN books b ON b.id = bri.book_id
+             WHERE bri.borrow_request_id = :id"
+        );
         $items->execute([':id' => $request_id]);
         while ($row = $items->fetch(PDO::FETCH_ASSOC)) {
+            $approved_books[] = [
+                'title' => (string)$row['title'],
+                'quantity' => (int)$row['quantity'],
+            ];
             $pdo->prepare(
                 "UPDATE books
                  SET copies_available = GREATEST(0, copies_available - :qty)
@@ -103,6 +114,29 @@ if ($action === 'approve') {
         error_log('Borrow approval failed: ' . $e->getMessage());
     }
 
+    if ($approved_books && filter_var((string)$request['email'], FILTER_VALIDATE_EMAIL)) {
+        $book_list = '<ul>';
+        foreach ($approved_books as $book) {
+            $book_list .= '<li>' . htmlspecialchars($book['title'], ENT_QUOTES, 'UTF-8');
+            if ($book['quantity'] > 1) {
+                $book_list .= ' x ' . $book['quantity'];
+            }
+            $book_list .= '</li>';
+        }
+        $book_list .= '</ul>';
+
+        $student_name = (string)$request['student_name'];
+        $subject = 'Smart Library - Borrow Request Approved';
+        $body = '<p>Hello ' . htmlspecialchars($student_name, ENT_QUOTES, 'UTF-8') . ',</p>';
+        $body .= '<p>Your borrow request has been approved by the library admin.</p>';
+        $body .= '<p><strong>Approved book(s):</strong></p>' . $book_list;
+        $body .= '<p>Please present your QR code when claiming your book(s) at the library.</p>';
+        $body .= '<p>Thank you,<br>Smart Library</p>';
+
+        if (!send_mail((string)$request['email'], $student_name, $subject, $body)) {
+            error_log('Approval email failed for borrow request #' . $request_id . ' to ' . $request['email']);
+        }
+    }
 
     header('Location: ' . BASE_URL . '/admin/borrow_requests.php?status=approved');
     exit;

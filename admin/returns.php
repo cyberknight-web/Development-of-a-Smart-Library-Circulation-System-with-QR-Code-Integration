@@ -10,8 +10,12 @@ require_admin_login();
 
 $pdo = db_connect();
 
-// All returned borrow requests with student info and book titles (comma-separated per request).
-$stmt = $pdo->query(
+$returned_cutoff = (new DateTimeImmutable('now', new DateTimeZone(APP_TIMEZONE)))
+    ->modify('-2 days')
+    ->format('Y-m-d H:i:s');
+
+// Returned borrow requests from the last 2 days with student info and book titles.
+$stmt = $pdo->prepare(
     "SELECT br.*, s.name AS student_name, s.student_id AS student_code, s.course, s.section, s.email,
             (SELECT GROUP_CONCAT(b.title ORDER BY b.title SEPARATOR ', ')
              FROM borrow_request_items bri
@@ -23,8 +27,10 @@ $stmt = $pdo->query(
      FROM borrow_requests br
      JOIN students s ON s.id = br.student_id
      WHERE br.status = 'returned'
+       AND br.returned_at >= :returned_cutoff
      ORDER BY br.returned_at DESC"
 );
+$stmt->execute([':returned_cutoff' => $returned_cutoff]);
 $returns = $stmt->fetchAll();
 
 function format_returned_on(?string $returned_at): string
@@ -123,7 +129,7 @@ admin_render_header('Returned Books');
         <div class="sl-page-header sl-returns-hero">
             <h2 class="mb-1">Returned Books</h2>
             <p class="mb-0" style="color: rgba(255, 255, 255, 0.9);">
-                History of all borrow transactions that have been returned to the library.
+                Returned borrow transactions from the last 2 days.
             </p>
         </div>
     </div>
