@@ -78,7 +78,7 @@ require_once __DIR__ . '/config.php';
     <div class="container text-center">
         <img src="assets/images/evsu-logo.png" alt="EVSU logo" class="portal-logo">
         <h1 class="mb-2">EVSU Smart Library</h1>
-        <p class="text-muted mb-4">Choose your portal</p>
+        <p class="text-muted mb-4">Choose your portal (testing)</p>
 
         <div class="row g-4 justify-content-center">
             <div class="col-sm-6 col-md-5">
