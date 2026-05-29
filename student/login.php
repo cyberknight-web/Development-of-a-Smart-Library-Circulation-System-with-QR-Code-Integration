@@ -13,6 +13,7 @@ if (student_is_logged_in()) {
 }
 
 $errors = [];
+$info_message = isset($_GET['timeout']) ? 'You were logged out after 6 minutes of inactivity.' : '';
 $max_login_attempts = 3;
 $lockout_seconds = 60;
 $now = time();
@@ -198,6 +199,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         You can try again in <span id="lockout-countdown"><?php echo (int)$lockout_remaining_seconds; ?></span> seconds.
                     </div>
                 <?php endif; ?>
+            </div>
+        <?php endif; ?>
+        <?php if ($info_message !== ''): ?>
+            <div class="alert alert-info">
+                <?php echo htmlspecialchars($info_message, ENT_QUOTES, 'UTF-8'); ?>
             </div>
         <?php endif; ?>
         <form method="post" novalidate>

@@ -21,20 +21,42 @@ if (empty($cart) || count($cart) > 3) {
 }
 
 $pdo = db_connect();
-$student_id = (int)$_SESSION['student_id'];
+$logged_student_id = (int)$_SESSION['student_id'];
+$student_id = $logged_student_id;
+$selected_student_id = isset($_POST['selected_student_id']) ? (int)$_POST['selected_student_id'] : 0;
 
 $form_values = [
-    'name' => trim($_POST['name'] ?? ''),
-    'student_code' => trim($_POST['student_code'] ?? ''),
-    'course' => trim($_POST['course'] ?? ''),
-    'section' => trim($_POST['section'] ?? ''),
-    'email' => strtolower(trim($_POST['email'] ?? '')),
+    'selected_student_id' => $selected_student_id,
+    'name' => '',
+    'student_code' => '',
+    'course' => '',
+    'section' => '',
+    'email' => '',
     'notes' => trim($_POST['notes'] ?? ''),
 ];
 
 $form_errors = [];
-if ($form_values['name'] === '') {
+if ($selected_student_id <= 0) {
     $form_errors[] = 'Name is required.';
+} elseif ($selected_student_id !== $logged_student_id) {
+    $form_errors[] = 'You select other student';
+} else {
+    $stmt = $pdo->prepare(
+        'SELECT id, name, student_id, course, section, email FROM students WHERE id = :id LIMIT 1'
+    );
+    $stmt->execute([':id' => $selected_student_id]);
+    $selected_student = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$selected_student) {
+        $form_errors[] = 'Please select a valid student name from the dropdown.';
+    } else {
+        $student_id = (int)$selected_student['id'];
+        $form_values['name'] = (string)$selected_student['name'];
+        $form_values['student_code'] = (string)$selected_student['student_id'];
+        $form_values['course'] = (string)$selected_student['course'];
+        $form_values['section'] = (string)$selected_student['section'];
+        $form_values['email'] = strtolower((string)$selected_student['email']);
+    }
 }
 if ($form_values['student_code'] === '') {
     $form_errors[] = 'Student ID is required.';
@@ -49,26 +71,6 @@ if ($form_values['email'] === '') {
     $form_errors[] = 'Email is required.';
 } elseif (!filter_var($form_values['email'], FILTER_VALIDATE_EMAIL)) {
     $form_errors[] = 'Email format is invalid.';
-}
-
-if (!$form_errors) {
-    $stmt = $pdo->prepare('SELECT 1 FROM students WHERE student_id = :student_code AND id <> :id LIMIT 1');
-    $stmt->execute([
-        ':student_code' => $form_values['student_code'],
-        ':id' => $student_id,
-    ]);
-    if ($stmt->fetch()) {
-        $form_errors[] = 'Student ID must be unique.';
-    }
-
-    $stmt = $pdo->prepare('SELECT 1 FROM students WHERE email = :email AND id <> :id LIMIT 1');
-    $stmt->execute([
-        ':email' => $form_values['email'],
-        ':id' => $student_id,
-    ]);
-    if ($stmt->fetch()) {
-        $form_errors[] = 'Email must be unique.';
-    }
 }
 
 if ($form_errors) {
@@ -152,11 +154,13 @@ try {
         $item_ins->execute([':req_id' => $request_id, ':book_id' => (int)$book_id]);
     }
     $pdo->commit();
-    $_SESSION['student_name'] = $form_values['name'];
-    $_SESSION['student_code'] = $form_values['student_code'];
-    $_SESSION['student_course'] = $form_values['course'];
-    $_SESSION['student_section'] = $form_values['section'];
-    $_SESSION['student_email'] = $form_values['email'];
+    if ($student_id === $logged_student_id) {
+        $_SESSION['student_name'] = $form_values['name'];
+        $_SESSION['student_code'] = $form_values['student_code'];
+        $_SESSION['student_course'] = $form_values['course'];
+        $_SESSION['student_section'] = $form_values['section'];
+        $_SESSION['student_email'] = $form_values['email'];
+    }
 } catch (Throwable $e) {
     $pdo->rollBack();
     error_log('Borrow submit error: ' . $e->getMessage());

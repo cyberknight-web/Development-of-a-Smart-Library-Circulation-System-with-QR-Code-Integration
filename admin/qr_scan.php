@@ -153,6 +153,7 @@ admin_render_header('QR Scan');
     }
     .sl-action-buttons {
         display: flex;
+        flex-direction: column-reverse;
         gap: 0.75rem;
         padding-top: 1.5rem;
         border-top: 1px solid #e9ecef;
@@ -299,12 +300,11 @@ admin_render_header('QR Scan');
                             <dt class="col-md-4">🆔 Student ID</dt>
                             <dd class="col-md-8"><?php echo htmlspecialchars($record['student_code'], ENT_QUOTES, 'UTF-8'); ?></dd>
 
-                            <dt class="col-md-4">📚 Course / Section</dt>
-                            <dd class="col-md-8">
-                                <?php echo htmlspecialchars($record['course'], ENT_QUOTES, 'UTF-8'); ?>
-                                /
-                                <?php echo htmlspecialchars($record['section'], ENT_QUOTES, 'UTF-8'); ?>
-                            </dd>
+                            <dt class="col-md-4">📚 Course</dt>
+                            <dd class="col-md-8"><?php echo htmlspecialchars($record['course'], ENT_QUOTES, 'UTF-8'); ?></dd>
+
+                            <dt class="col-md-4">Year / Section</dt>
+                            <dd class="col-md-8"><?php echo htmlspecialchars($record['section'], ENT_QUOTES, 'UTF-8'); ?></dd>
 
                             <dt class="col-md-4">✉️ Email</dt>
                             <dd class="col-md-8">

@@ -6,6 +6,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/student_auth.php';
+require_once __DIR__ . '/../includes/password_policy.php';
 
 require_student_login();
 
@@ -18,8 +19,8 @@ $current = $_POST['current_password'] ?? '';
 $new = $_POST['new_password'] ?? '';
 $confirm = $_POST['confirm_password'] ?? '';
 
-if (strlen($new) < 8) {
-    header('Location: ' . BASE_URL . '/student/change_password.php?status=short');
+if (!smartlibrary_is_valid_password($new)) {
+    header('Location: ' . BASE_URL . '/student/change_password.php?status=weak');
     exit;
 }
 if ($new !== $confirm) {

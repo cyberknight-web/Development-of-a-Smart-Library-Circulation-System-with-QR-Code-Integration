@@ -147,7 +147,8 @@ admin_render_header('Returned Books');
                     <tr>
                         <th>Student</th>
                         <th>Student ID</th>
-                        <th>Course / Section</th>
+                        <th>Course</th>
+                        <th>Year / Section</th>
                         <th>Books Returned</th>
                         <th>Copies</th>
                         <th>Notes</th>
@@ -165,10 +166,8 @@ admin_render_header('Returned Books');
                                     <?php endif; ?>
                                 </td>
                                 <td><?php echo htmlspecialchars($r['student_code'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                <td>
-                                    <?php echo htmlspecialchars($r['course'], ENT_QUOTES, 'UTF-8'); ?>
-                                    / <?php echo htmlspecialchars($r['section'], ENT_QUOTES, 'UTF-8'); ?>
-                                </td>
+                                <td><?php echo htmlspecialchars($r['course'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars($r['section'], ENT_QUOTES, 'UTF-8'); ?></td>
                                 <td class="text-break"><?php echo htmlspecialchars($r['book_titles'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></td>
                                 <td class="text-center"><?php echo (int) ($r['total_copies'] ?? 0); ?></td>
                                 <td>
@@ -183,7 +182,7 @@ admin_render_header('Returned Books');
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="7" class="text-center text-muted py-4">No returned borrows yet.</td>
+                            <td colspan="8" class="text-center text-muted py-4">No returned borrows yet.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

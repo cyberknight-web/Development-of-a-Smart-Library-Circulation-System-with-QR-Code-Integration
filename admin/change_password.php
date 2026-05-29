@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/admin_auth.php';
 require_once __DIR__ . '/../includes/admin_layout.php';
+require_once __DIR__ . '/../includes/password_policy.php';
 
 require_admin_login();
 
@@ -14,8 +15,8 @@ if ($status === 'wrong_current') {
     $error_message = 'Current password is incorrect.';
 } elseif ($status === 'mismatch') {
     $error_message = 'New password and confirmation do not match.';
-} elseif ($status === 'short') {
-    $error_message = 'New password must be at least 8 characters.';
+} elseif ($status === 'short' || $status === 'weak') {
+    $error_message = smartlibrary_password_policy_message();
 } elseif ($status === 'error') {
     $error_message = 'Password could not be updated. Please try again.';
 }
@@ -55,7 +56,7 @@ admin_render_header('Change Password');
                     <div class="mb-3">
                         <label for="new_password" class="form-label">New password</label>
                         <div class="input-group">
-                            <input type="password" class="form-control js-password-field" id="new_password" name="new_password" required minlength="8" autocomplete="new-password">
+                            <input type="password" class="form-control js-password-field" id="new_password" name="new_password" required minlength="8" pattern="(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}" title="<?php echo htmlspecialchars(smartlibrary_password_policy_message(), ENT_QUOTES, 'UTF-8'); ?>" autocomplete="new-password">
                             <button type="button" class="btn btn-outline-secondary js-password-toggle" data-target="new_password" data-state="hidden" aria-label="Show new password" title="Show password">
                                 <span class="js-password-icon" aria-hidden="true">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -65,12 +66,12 @@ admin_render_header('Change Password');
                                 </span>
                             </button>
                         </div>
-                        <div class="form-text">At least 8 characters.</div>
+                        <div class="form-text"><?php echo htmlspecialchars(smartlibrary_password_policy_message(), ENT_QUOTES, 'UTF-8'); ?></div>
                     </div>
                     <div class="mb-3">
                         <label for="confirm_password" class="form-label">Confirm new password</label>
                         <div class="input-group">
-                            <input type="password" class="form-control js-password-field" id="confirm_password" name="confirm_password" required minlength="8" autocomplete="new-password">
+                            <input type="password" class="form-control js-password-field" id="confirm_password" name="confirm_password" required minlength="8" pattern="(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}" title="<?php echo htmlspecialchars(smartlibrary_password_policy_message(), ENT_QUOTES, 'UTF-8'); ?>" autocomplete="new-password">
                             <button type="button" class="btn btn-outline-secondary js-password-toggle" data-target="confirm_password" data-state="hidden" aria-label="Show confirm password" title="Show password">
                                 <span class="js-password-icon" aria-hidden="true">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">

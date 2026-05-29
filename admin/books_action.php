@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/admin_auth.php';
+require_once __DIR__ . '/../includes/book_covers.php';
 
 require_admin_login();
 
@@ -21,6 +22,7 @@ if (!in_array($action, ['update', 'delete', 'toggle_status', 'delete_all', 'rest
 }
 
 $pdo = db_connect();
+smartlibrary_ensure_book_cover_columns($pdo);
 
 function ensure_books_backup_table(PDO $pdo): void
 {
@@ -35,6 +37,7 @@ function ensure_books_backup_table(PDO $pdo): void
             publication_year varchar(10) DEFAULT NULL,
             category varchar(100) DEFAULT NULL,
             location varchar(100) DEFAULT NULL,
+            cover_image varchar(255) DEFAULT NULL,
             copies_total int(10) unsigned NOT NULL DEFAULT 1,
             copies_available int(10) unsigned NOT NULL DEFAULT 1,
             status enum(\'available\',\'not_available\') NOT NULL DEFAULT \'available\',
@@ -64,12 +67,12 @@ if (in_array($action, ['delete_all', 'restore_all'], true)) {
             $pdo->exec(
                 'INSERT INTO books_restore_bin (
                     id, accession_no, isbn, title, author, publisher, publication_year,
-                    category, location, copies_total, copies_available, status,
+                    category, location, cover_image, copies_total, copies_available, status,
                     imported_from_excel, created_at, updated_at
                 )
                 SELECT
                     id, accession_no, isbn, title, author, publisher, publication_year,
-                    category, location, copies_total, copies_available, status,
+                    category, location, cover_image, copies_total, copies_available, status,
                     imported_from_excel, created_at, updated_at
                 FROM books'
             );
@@ -109,12 +112,12 @@ if (in_array($action, ['delete_all', 'restore_all'], true)) {
         $pdo->exec(
             'INSERT INTO books (
                 id, accession_no, isbn, title, author, publisher, publication_year,
-                category, location, copies_total, copies_available, status,
+                category, location, cover_image, copies_total, copies_available, status,
                 imported_from_excel, created_at, updated_at
             )
             SELECT
                 id, accession_no, isbn, title, author, publisher, publication_year,
-                category, location, copies_total, copies_available, status,
+                category, location, cover_image, copies_total, copies_available, status,
                 imported_from_excel, created_at, updated_at
             FROM books_restore_bin
             ORDER BY id ASC'
@@ -138,9 +141,10 @@ if ($book_id <= 0) {
 }
 
 
-$stmt = $pdo->prepare('SELECT id FROM books WHERE id = :id');
+$stmt = $pdo->prepare('SELECT id, cover_image FROM books WHERE id = :id');
 $stmt->execute([':id' => $book_id]);
-if (!$stmt->fetch()) {
+$book_row = $stmt->fetch();
+if (!$book_row) {
     header('Location: ' . BASE_URL . '/admin/books.php?status=action_error');
     exit;
 }
@@ -159,12 +163,12 @@ if ($action === 'delete') {
         $backup = $pdo->prepare(
             'REPLACE INTO books_restore_bin (
                 id, accession_no, isbn, title, author, publisher, publication_year,
-                category, location, copies_total, copies_available, status,
+                category, location, cover_image, copies_total, copies_available, status,
                 imported_from_excel, created_at, updated_at, deleted_at
             )
             SELECT
                 id, accession_no, isbn, title, author, publisher, publication_year,
-                category, location, copies_total, copies_available, status,
+                category, location, cover_image, copies_total, copies_available, status,
                 imported_from_excel, created_at, updated_at, CURRENT_TIMESTAMP
             FROM books
             WHERE id = :id'
@@ -220,8 +224,16 @@ if ($action === 'update') {
     }
     $copies_total = max(0, $copies_total);
     $copies_available = min(max(0, $copies_available), $copies_total);
+    $cover_image = $book_row['cover_image'] ?? null;
+    $old_cover_image = $cover_image;
+    $new_cover_image = null;
 
     try {
+        $new_cover_image = smartlibrary_save_book_cover_upload($_FILES['cover_image'] ?? [], $book_id);
+        if ($new_cover_image !== null) {
+            $cover_image = $new_cover_image;
+        }
+
         $upd = $pdo->prepare(
             'UPDATE books SET
                 accession_no = :accession_no,
@@ -232,6 +244,7 @@ if ($action === 'update') {
                 publication_year = :publication_year,
                 category = :category,
                 location = :location,
+                cover_image = :cover_image,
                 copies_total = :copies_total,
                 copies_available = :copies_available,
                 status = :status
@@ -246,12 +259,23 @@ if ($action === 'update') {
             ':publication_year' => $publication_year,
             ':category' => $category,
             ':location' => $location,
+            ':cover_image' => $cover_image,
             ':copies_total' => $copies_total,
             ':copies_available' => $copies_available,
             ':status' => $status,
             ':id' => $book_id,
         ]);
+        if ($new_cover_image !== null && $old_cover_image !== $new_cover_image) {
+            smartlibrary_delete_book_cover_file($old_cover_image);
+        }
+    } catch (SmartlibraryBookCoverUploadException $e) {
+        error_log('Book cover upload failed: ' . $e->getMessage());
+        header('Location: ' . BASE_URL . '/admin/books.php?status=invalid_cover');
+        exit;
     } catch (Throwable $e) {
+        if ($new_cover_image !== null) {
+            smartlibrary_delete_book_cover_file($new_cover_image);
+        }
         error_log('Book update failed: ' . $e->getMessage());
         header('Location: ' . BASE_URL . '/admin/books.php?status=update_error');
         exit;

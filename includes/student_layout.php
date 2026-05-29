@@ -132,6 +132,8 @@ function student_render_header(string $page_title = 'Student'): void
 
 function student_render_footer(): void
 {
+    $idle_timeout_enabled = function_exists('student_has_remember_me_session') && !student_has_remember_me_session();
+    $idle_timeout_ms = defined('STUDENT_IDLE_TIMEOUT_SECONDS') ? STUDENT_IDLE_TIMEOUT_SECONDS * 1000 : 360000;
     ?>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -170,6 +172,27 @@ function student_render_footer(): void
                 });
             });
         });
+
+        <?php if ($idle_timeout_enabled): ?>
+        (function () {
+            const timeoutMs = <?php echo (int)$idle_timeout_ms; ?>;
+            const logoutUrl = '<?php echo BASE_URL; ?>/student/logout.php?timeout=1';
+            let idleTimer = null;
+
+            function resetIdleTimer() {
+                window.clearTimeout(idleTimer);
+                idleTimer = window.setTimeout(function () {
+                    window.location.href = logoutUrl;
+                }, timeoutMs);
+            }
+
+            ['click', 'keydown', 'mousemove', 'scroll', 'touchstart'].forEach(function (eventName) {
+                document.addEventListener(eventName, resetIdleTimer, { passive: true });
+            });
+
+            resetIdleTimer();
+        })();
+        <?php endif; ?>
     </script>
     </body>
     </html>
