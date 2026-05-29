@@ -141,7 +141,7 @@ admin_render_header('Claimed Borrowers');
                         <th>Student Name</th>
                         <th>Student ID</th>
                         <th>Course</th>
-                        <th>Section</th>
+                        <th>Year / Section</th>
                         <th>Email</th>
                         <th>Claimed Books</th>
                         <th>QR Token</th>

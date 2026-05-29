@@ -7,10 +7,12 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/student_auth.php';
 require_once __DIR__ . '/../includes/student_layout.php';
+require_once __DIR__ . '/../includes/book_covers.php';
 
 require_student_login();
 
 $pdo = db_connect();
+smartlibrary_ensure_book_cover_columns($pdo);
 $search = trim($_GET['q'] ?? '');
 $cart = student_sync_cart_with_books($pdo);
 $student_id = (int)($_SESSION['student_id'] ?? 0);
@@ -243,6 +245,30 @@ student_render_header('Choose Books');
     .sl-books-table tbody tr:hover {
         background: rgba(128, 0, 0, 0.03);
     }
+    .sl-book-cover-preview {
+        width: 58px;
+        height: 78px;
+        object-fit: cover;
+        border: 1px solid rgba(128, 0, 0, 0.18);
+        border-radius: 8px;
+        background: #faf7f7;
+        box-shadow: 0 6px 14px rgba(33, 37, 41, 0.08);
+    }
+    .sl-book-cover-placeholder {
+        width: 58px;
+        height: 78px;
+        border: 1px dashed rgba(128, 0, 0, 0.32);
+        border-radius: 8px;
+        color: #6c757d;
+        background: #faf7f7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.68rem;
+        line-height: 1.1;
+        text-align: center;
+        padding: 0.3rem;
+    }
 </style>
 
 <div class="row mb-4">
@@ -297,6 +323,7 @@ student_render_header('Choose Books');
             <table class="table table-sm align-middle sl-books-table">
                 <thead>
                     <tr>
+                        <th>Cover</th>
                         <th>Title</th>
                         <th>Author</th>
                         <th>Category</th>
@@ -311,8 +338,16 @@ student_render_header('Choose Books');
                                 $copies_available = (int)($b['copies_available'] ?? 0);
                                 $is_available_status = ($b['status'] ?? '') === 'available';
                                 $can_add = $is_available_status && $copies_available > 0;
+                                $cover_url = smartlibrary_book_cover_url($b['cover_image'] ?? null);
                             ?>
                             <tr>
+                                <td>
+                                    <?php if ($cover_url): ?>
+                                        <img src="<?php echo htmlspecialchars($cover_url, ENT_QUOTES, 'UTF-8'); ?>" alt="Cover for <?php echo htmlspecialchars($b['title'], ENT_QUOTES, 'UTF-8'); ?>" class="sl-book-cover-preview">
+                                    <?php else: ?>
+                                        <div class="sl-book-cover-placeholder">No cover</div>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?php echo htmlspecialchars($b['title'], ENT_QUOTES, 'UTF-8'); ?></td>
                                 <td><?php echo htmlspecialchars($b['author'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                 <td><?php echo htmlspecialchars($b['category'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
@@ -351,7 +386,7 @@ student_render_header('Choose Books');
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="5" class="text-center text-muted">
+                            <td colspan="6" class="text-center text-muted">
                                 <?php echo $search !== '' ? 'No available books match your search.' : 'No available books at the moment.'; ?>
                             </td>
                         </tr>

@@ -7,6 +7,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/student_auth.php';
 require_once __DIR__ . '/../includes/password_reset_tokens.php';
+require_once __DIR__ . '/../includes/password_policy.php';
 
 if (student_is_logged_in()) {
     header('Location: ' . BASE_URL . '/student/dashboard.php');
@@ -36,8 +37,8 @@ if ($token === '') {
         } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $password = $_POST['password'] ?? '';
             $confirm  = $_POST['password_confirm'] ?? '';
-            if (strlen($password) < 6) {
-                $errors[] = 'Password must be at least 6 characters.';
+            if (!smartlibrary_is_valid_password($password)) {
+                $errors[] = smartlibrary_password_policy_message();
             } elseif ($password !== $confirm) {
                 $errors[] = 'Passwords do not match.';
             } else {
@@ -76,6 +77,22 @@ if ($token === '') {
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/modern-minimal.css">
 </head>
 <body>
+<script>
+function togglePassword() {
+    var passwordInput = document.getElementById('password');
+    var checkbox = document.getElementById('showPasswordCheck');
+    if (passwordInput && checkbox) {
+        passwordInput.type = checkbox.checked ? 'text' : 'password';
+    }
+}
+function togglePasswordConfirm() {
+    var passwordInput = document.getElementById('password_confirm');
+    var checkbox = document.getElementById('showPasswordConfirmCheck');
+    if (passwordInput && checkbox) {
+        passwordInput.type = checkbox.checked ? 'text' : 'password';
+    }
+}
+</script>
 <div class="card w-100">
     <div class="card-body p-4">
         <?php if ($success): ?>
@@ -90,11 +107,24 @@ if ($token === '') {
             <form method="post">
                 <div class="mb-3">
                     <label for="password" class="form-label">New Password</label>
-                    <input type="password" class="form-control" id="password" name="password" required minlength="6">
+                    <input type="password" class="form-control" id="password" name="password" required minlength="8" pattern="(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}" title="<?php echo htmlspecialchars(smartlibrary_password_policy_message(), ENT_QUOTES, 'UTF-8'); ?>">
+                    <div class="form-check mt-2">
+                        <input type="checkbox" class="form-check-input" id="showPasswordCheck" onclick="togglePassword()">
+                        <label class="form-check-label" for="showPasswordCheck">
+                            Show Password
+                        </label>
+                    </div>
+                    <div class="form-text"><?php echo htmlspecialchars(smartlibrary_password_policy_message(), ENT_QUOTES, 'UTF-8'); ?></div>
                 </div>
                 <div class="mb-3">
                     <label for="password_confirm" class="form-label">Confirm Password</label>
-                    <input type="password" class="form-control" id="password_confirm" name="password_confirm" required minlength="6">
+                    <input type="password" class="form-control" id="password_confirm" name="password_confirm" required minlength="8" pattern="(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}" title="<?php echo htmlspecialchars(smartlibrary_password_policy_message(), ENT_QUOTES, 'UTF-8'); ?>">
+                    <div class="form-check mt-2">
+                        <input type="checkbox" class="form-check-input" id="showPasswordConfirmCheck" onclick="togglePasswordConfirm()">
+                        <label class="form-check-label" for="showPasswordConfirmCheck">
+                            Show Password
+                        </label>
+                    </div>
                 </div>
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-sl-primary">Update Password</button>

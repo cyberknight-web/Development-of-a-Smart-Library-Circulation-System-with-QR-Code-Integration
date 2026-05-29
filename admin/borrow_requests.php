@@ -280,7 +280,8 @@ admin_render_header('Borrow Requests');
                     <tr>
                         <th>Name</th>
                         <th>Student ID</th>
-                        <th>Course / Section</th>
+                        <th>Course</th>
+                        <th>Year / Section</th>
                         <th>Active Borrows</th>
                         <th>Email</th>
                         <th>Requested Books</th>
@@ -305,9 +306,10 @@ admin_render_header('Borrow Requests');
                                     <?php echo htmlspecialchars($r['student_code'], ENT_QUOTES, 'UTF-8'); ?>
                                 </td>
 
-                                <td data-label="Course / Section">
+                                <td data-label="Course">
                                     <?php echo htmlspecialchars($r['course'], ENT_QUOTES, 'UTF-8'); ?>
-                                    /
+                                </td>
+                                <td data-label="Year / Section">
                                     <?php echo htmlspecialchars($r['section'], ENT_QUOTES, 'UTF-8'); ?>
                                 </td>
 
@@ -424,7 +426,7 @@ admin_render_header('Borrow Requests');
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="12" class="text-center text-muted">
+                            <td colspan="13" class="text-center text-muted">
                                 No pending borrow requests.
                             </td>
                         </tr>
@@ -562,7 +564,7 @@ admin_render_header('Borrow Requests');
     }
 
     refreshBorrowRequests();
-    window.setInterval(refreshBorrowRequests, 10000);
+    window.setInterval(refreshBorrowRequests, 5000);
 })();
 </script>
 

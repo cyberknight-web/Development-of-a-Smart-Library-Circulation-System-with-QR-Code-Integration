@@ -20,11 +20,11 @@ $pdo = db_connect();
 $student_id = (int)$_SESSION['student_id'];
 
 $stmt = $pdo->prepare(
-    "SELECT br.id, br.qr_token, br.status, br.notes, br.requested_at, 
+    "SELECT br.id, br.qr_token, br.status, br.notes, br.requested_at,
             s.name, s.student_id AS student_code, s.course, s.section, s.email
      FROM borrow_requests br
      JOIN students s ON s.id = br.student_id
-     WHERE br.qr_token = :token AND br.student_id = :sid 
+     WHERE br.qr_token = :token AND br.student_id = :sid
      LIMIT 1"
 );
 $stmt->execute([
@@ -39,10 +39,17 @@ if (!$record) {
     exit;
 }
 
+// Ensure course and section are present for this borrow record. If missing,
+// redirect the student to their profile to complete the details.
+if (trim((string)$record['course']) === '' || trim((string)$record['section']) === '') {
+    header('Location: ' . BASE_URL . '/student/profile.php?status=missing_profile');
+    exit;
+}
+
 $stmt_items = $pdo->prepare(
-    "SELECT bri.*, b.title 
-     FROM borrow_request_items bri 
-     JOIN books b ON b.id = bri.book_id 
+    "SELECT bri.*, b.title
+     FROM borrow_request_items bri
+     JOIN books b ON b.id = bri.book_id
      WHERE bri.borrow_request_id = :id"
 );
 $stmt_items->execute([
@@ -98,11 +105,11 @@ student_render_header('Your QR Code');
             <div class="card-body text-center">
                 <h5 class="card-title mb-3">QR Code</h5>
 
-                <img 
-                    src="<?php echo htmlspecialchars($qr_url, ENT_QUOTES, 'UTF-8'); ?>" 
-                    alt="QR Code" 
-                    class="img-fluid" 
-                    id="qrImage" 
+                <img
+                    src="<?php echo htmlspecialchars($qr_url, ENT_QUOTES, 'UTF-8'); ?>"
+                    alt="QR Code"
+                    class="img-fluid"
+                    id="qrImage"
                     style="max-width: 220px;"
                 >
 
@@ -119,7 +126,7 @@ student_render_header('Your QR Code');
                 <?php endif; ?>
 
                 <p class="small text-muted mt-2 mb-2">
-                    Token: 
+                    Token:
                     <code id="qrToken">
                         <?php echo htmlspecialchars($record['qr_token'], ENT_QUOTES, 'UTF-8'); ?>
                     </code>
@@ -158,9 +165,13 @@ student_render_header('Your QR Code');
                         <?php echo htmlspecialchars($record['student_code'], ENT_QUOTES, 'UTF-8'); ?>
                     </dd>
 
-                    <dt class="col-sm-4">Course / Section</dt>
+                    <dt class="col-sm-4">Course</dt>
                     <dd class="col-sm-8">
-                        <?php echo htmlspecialchars($record['course'], ENT_QUOTES, 'UTF-8'); ?> / 
+                        <?php echo htmlspecialchars($record['course'], ENT_QUOTES, 'UTF-8'); ?>
+                    </dd>
+
+                    <dt class="col-sm-4">Year / Section</dt>
+                    <dd class="col-sm-8">
                         <?php echo htmlspecialchars($record['section'], ENT_QUOTES, 'UTF-8'); ?>
                     </dd>
 

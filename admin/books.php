@@ -5,10 +5,12 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/admin_auth.php';
 require_once __DIR__ . '/../includes/admin_layout.php';
+require_once __DIR__ . '/../includes/book_covers.php';
 
 require_admin_login();
 
 $pdo = db_connect();
+smartlibrary_ensure_book_cover_columns($pdo);
 
 $search_books = trim($_GET['q'] ?? '');
 $like_books = $search_books !== '' ? '%' . $search_books . '%' : null;
@@ -68,6 +70,8 @@ if ($status === 'import_success') {
 } elseif ($status === 'updated') {
     $status_message = 'Book updated successfully.';
     $status_alert = 'success';
+} elseif ($status === 'invalid_cover') {
+    $status_message = 'Book cover photo must be a JPG, PNG, WEBP, or GIF image up to 5 MB.';
 } elseif ($status === 'deleted') {
     $status_message = 'Book deleted successfully.';
     $status_alert = 'success';
@@ -175,6 +179,28 @@ admin_render_header('Books Management');
     }
     .sl-books-table tbody tr:hover {
         background: rgba(128, 0, 0, 0.03);
+    }
+    .sl-book-cover-preview {
+        width: 76px;
+        height: 104px;
+        object-fit: cover;
+        border: 1px solid rgba(255, 106, 0, 0.18);
+        border-radius: 8px;
+        background: #fff8f3;
+    }
+    .sl-book-cover-placeholder {
+        width: 76px;
+        height: 104px;
+        border: 1px dashed rgba(255, 106, 0, 0.35);
+        border-radius: 8px;
+        color: #6c757d;
+        background: #fff8f3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        text-align: center;
+        padding: 0.35rem;
     }
     .sl-badge-soft {
         font-size: 0.76rem;
@@ -302,6 +328,7 @@ admin_render_header('Books Management');
                             <table class="table table-sm align-middle sl-books-table" id="tableImportedBooks">
                                 <thead>
                                 <tr>
+                                    <th>Cover</th>
                                     <th>Title</th>
                                     <th>Author</th>
                                     <th>Category</th>
@@ -314,6 +341,14 @@ admin_render_header('Books Management');
                                 <?php if ($books_all): ?>
                                     <?php foreach ($books_all as $book): ?>
                                         <tr data-book="<?php echo sl_book_data_attribute($book); ?>">
+                                            <td>
+                                                <?php $cover_url = smartlibrary_book_cover_url($book['cover_image'] ?? null); ?>
+                                                <?php if ($cover_url): ?>
+                                                    <img src="<?php echo htmlspecialchars($cover_url, ENT_QUOTES, 'UTF-8'); ?>" alt="Cover for <?php echo htmlspecialchars($book['title'], ENT_QUOTES, 'UTF-8'); ?>" class="sl-book-cover-preview">
+                                                <?php else: ?>
+                                                    <div class="sl-book-cover-placeholder">No cover</div>
+                                                <?php endif; ?>
+                                            </td>
                                             <td><?php echo htmlspecialchars($book['title'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td><?php echo htmlspecialchars($book['author'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td><?php echo htmlspecialchars($book['category'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
@@ -340,7 +375,7 @@ admin_render_header('Books Management');
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="6" class="text-center text-muted">
+                                        <td colspan="7" class="text-center text-muted">
                                             <?php echo $search_books !== '' ? 'No books match your search. Try a different term or clear search.' : 'No books found. Please import a file.'; ?>
                                         </td>
                                     </tr>
@@ -369,6 +404,7 @@ admin_render_header('Books Management');
                             <table class="table table-sm align-middle sl-books-table">
                                 <thead>
                                 <tr>
+                                    <th>Cover</th>
                                     <th>Title</th>
                                     <th>Author</th>
                                     <th>Category</th>
@@ -380,6 +416,14 @@ admin_render_header('Books Management');
                                 <?php if ($books_available): ?>
                                     <?php foreach ($books_available as $book): ?>
                                         <tr data-book="<?php echo sl_book_data_attribute($book); ?>">
+                                            <td>
+                                                <?php $cover_url = smartlibrary_book_cover_url($book['cover_image'] ?? null); ?>
+                                                <?php if ($cover_url): ?>
+                                                    <img src="<?php echo htmlspecialchars($cover_url, ENT_QUOTES, 'UTF-8'); ?>" alt="Cover for <?php echo htmlspecialchars($book['title'], ENT_QUOTES, 'UTF-8'); ?>" class="sl-book-cover-preview">
+                                                <?php else: ?>
+                                                    <div class="sl-book-cover-placeholder">No cover</div>
+                                                <?php endif; ?>
+                                            </td>
                                             <td><?php echo htmlspecialchars($book['title'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td><?php echo htmlspecialchars($book['author'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td><?php echo htmlspecialchars($book['category'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
@@ -403,7 +447,7 @@ admin_render_header('Books Management');
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted">
+                                        <td colspan="6" class="text-center text-muted">
                                             <?php echo $search_books !== '' ? 'No available books match your search.' : 'No available books at the moment.'; ?>
                                         </td>
                                     </tr>
@@ -485,11 +529,21 @@ admin_render_header('Books Management');
                 <h5 class="modal-title" id="editBookModalLabel">Update Book</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" action="<?php echo BASE_URL; ?>/admin/books_action.php" id="formEditBook">
+            <form method="post" action="<?php echo BASE_URL; ?>/admin/books_action.php" id="formEditBook" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="update">
                 <input type="hidden" name="book_id" id="editBookId">
                 <div class="modal-body">
                     <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="edit_cover_image" class="form-label">Book Cover Photo</label>
+                            <div id="editCoverPreviewWrap" class="mb-2">
+                                <div class="sl-book-cover-placeholder">No cover photo</div>
+                            </div>
+                            <input type="file" class="form-control" id="edit_cover_image" name="cover_image" accept="image/jpeg,image/png,image/webp,image/gif">
+                            <div class="form-text">Upload a new cover anytime to replace the current cover. Supported formats: JPG, PNG, WEBP, GIF, max 5 MB.</div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row g-3">
                         <div class="col-md-6">
                             <label for="edit_accession_no" class="form-label">Accession No</label>
                             <input type="text" class="form-control" id="edit_accession_no" name="accession_no">
@@ -501,6 +555,8 @@ admin_render_header('Books Management');
                         <div class="col-12">
                             <label for="edit_title" class="form-label">Title <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="edit_title" name="title" required>
+                        </div>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label for="edit_author" class="form-label">Author</label>
@@ -577,11 +633,40 @@ admin_render_header('Books Management');
     var btnRestoreAll = document.getElementById('btnRestoreAllBooks');
     var deleteBookId = document.getElementById('deleteBookId');
     var statusBookId = document.getElementById('statusBookId');
+    var coverInput = document.getElementById('edit_cover_image');
+    var coverPreviewWrap = document.getElementById('editCoverPreviewWrap');
+    var selectedCoverPreviewUrl = null;
 
     function getBookFromRow(btn) {
         var tr = btn.closest('tr');
         if (!tr || !tr.dataset.book) return null;
         try { return JSON.parse(tr.dataset.book); } catch (e) { return null; }
+    }
+
+    function renderCoverPreview(filename) {
+        if (!coverPreviewWrap) return;
+        if (selectedCoverPreviewUrl) {
+            URL.revokeObjectURL(selectedCoverPreviewUrl);
+            selectedCoverPreviewUrl = null;
+        }
+        if (!filename) {
+            coverPreviewWrap.innerHTML = '<div class="sl-book-cover-placeholder">No cover photo</div>';
+            return;
+        }
+        var baseUrl = '<?php echo BASE_URL; ?>/uploads/book_covers/';
+        coverPreviewWrap.innerHTML = '<img class="sl-book-cover-preview" src="' + baseUrl + encodeURIComponent(filename) + '" alt="Current book cover">';
+    }
+
+    if (coverInput) {
+        coverInput.addEventListener('change', function () {
+            var file = coverInput.files && coverInput.files[0] ? coverInput.files[0] : null;
+            if (!file || !coverPreviewWrap) return;
+            if (selectedCoverPreviewUrl) {
+                URL.revokeObjectURL(selectedCoverPreviewUrl);
+            }
+            selectedCoverPreviewUrl = URL.createObjectURL(file);
+            coverPreviewWrap.innerHTML = '<img class="sl-book-cover-preview" src="' + selectedCoverPreviewUrl + '" alt="Selected book cover">';
+        });
     }
 
     document.querySelectorAll('.btn-edit-book').forEach(function (btn) {
@@ -603,6 +688,10 @@ admin_render_header('Books Management');
             document.getElementById('edit_copies_total').value = book.copies_total != null ? book.copies_total : 1;
             document.getElementById('edit_copies_available').value = book.copies_available != null ? book.copies_available : 0;
             document.getElementById('edit_status').value = (book.status === 'not_available') ? 'not_available' : 'available';
+            if (coverInput) {
+                coverInput.value = '';
+            }
+            renderCoverPreview(book.cover_image || '');
             if (!editModal || !window.bootstrap) {
                 alert('The update form could not be opened. Please refresh the page and try again.');
                 return;

@@ -151,7 +151,8 @@ admin_render_header('Approved Borrowers');
                 <tr>
                     <th class="fw-semibold"><i class="bi bi-person-badge text-primary me-2"></i>Student</th>
                     <th class="fw-semibold"><i class="bi bi-hash text-primary me-2"></i>ID</th>
-                    <th class="fw-semibold"><i class="bi bi-book-half text-primary me-2"></i>Course / Year</th>
+                    <th class="fw-semibold"><i class="bi bi-book-half text-primary me-2"></i>Course</th>
+                    <th class="fw-semibold"><i class="bi bi-diagram-3 text-primary me-2"></i>Year / Section</th>
                     <th class="fw-semibold"><i class="bi bi-envelope text-primary me-2"></i>Email</th>
                     <th class="fw-semibold"><i class="bi bi-book text-primary me-2"></i>Books</th>
                     <th class="fw-semibold"><i class="bi bi-tag text-primary me-2"></i>Category</th>
@@ -172,7 +173,12 @@ admin_render_header('Approved Borrowers');
                             <td><code class="text-primary"><?php echo htmlspecialchars($r['student_code'], ENT_QUOTES, 'UTF-8'); ?></code></td>
                             <td>
                                 <span class="badge bg-light text-dark sl-approved-tag">
-                                    <?php echo htmlspecialchars($r['course'], ENT_QUOTES, 'UTF-8'); ?> / <?php echo htmlspecialchars($r['section'], ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php echo htmlspecialchars($r['course'], ENT_QUOTES, 'UTF-8'); ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark sl-approved-tag">
+                                    <?php echo htmlspecialchars($r['section'], ENT_QUOTES, 'UTF-8'); ?>
                                 </span>
                             </td>
                             <td>
@@ -221,7 +227,7 @@ admin_render_header('Approved Borrowers');
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="10" class="text-center py-5">
+                        <td colspan="11" class="text-center py-5">
                             <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.2;"></i>
                             <div class="mt-3 text-muted">
                                 <p class="mb-0"><strong>No approved borrowers yet.</strong></p>

@@ -73,7 +73,7 @@ function sl_render_borrow_request_rows(array $requests, array $request_book_avai
     if (!$requests) {
         ?>
         <tr>
-            <td colspan="12" class="text-center text-muted">
+            <td colspan="13" class="text-center text-muted">
                 No pending borrow requests.
             </td>
         </tr>
@@ -92,9 +92,11 @@ function sl_render_borrow_request_rows(array $requests, array $request_book_avai
                 <?php echo htmlspecialchars($r['student_code'], ENT_QUOTES, 'UTF-8'); ?>
             </td>
 
-            <td data-label="Course / Section">
+            <td data-label="Course">
                 <?php echo htmlspecialchars($r['course'], ENT_QUOTES, 'UTF-8'); ?>
-                /
+            </td>
+
+            <td data-label="Year / Section">
                 <?php echo htmlspecialchars($r['section'], ENT_QUOTES, 'UTF-8'); ?>
             </td>
 

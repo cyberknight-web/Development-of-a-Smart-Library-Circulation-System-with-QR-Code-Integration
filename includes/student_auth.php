@@ -10,6 +10,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 const STUDENT_REMEMBER_COOKIE = 'student_remember_token';
 const STUDENT_REMEMBER_DAYS = 30;
+const STUDENT_IDLE_TIMEOUT_SECONDS = 360;
 
 function ensure_student_remember_tokens_table(PDO $pdo): void
 {
@@ -74,6 +75,7 @@ function student_store_remember_token(PDO $pdo, int $student_id): void
     ]);
 
     student_set_remember_cookie($token, $expires);
+    $_SESSION['student_remember_me'] = true;
 }
 
 function student_delete_current_remember_token(PDO $pdo): void
@@ -88,6 +90,7 @@ function student_delete_current_remember_token(PDO $pdo): void
     }
 
     student_delete_remember_cookie();
+    $_SESSION['student_remember_me'] = false;
 }
 
 function student_start_session_from_row(array $student): void
@@ -136,6 +139,7 @@ function student_try_remember_login(): bool
 
         session_regenerate_id(true);
         student_start_session_from_row($student);
+        $_SESSION['student_remember_me'] = true;
         return true;
     } catch (Throwable $e) {
         error_log('student_try_remember_login failed: ' . $e->getMessage());
@@ -145,6 +149,10 @@ function student_try_remember_login(): bool
 
 function student_is_logged_in(): bool
 {
+    if (isset($_SESSION['student_id'])) {
+        student_enforce_idle_timeout();
+    }
+
     return isset($_SESSION['student_id']) || student_try_remember_login();
 }
 
@@ -154,6 +162,35 @@ function require_student_login(): void
         header('Location: ' . BASE_URL . '/student/login.php');
         exit;
     }
+}
+
+function student_has_remember_me_session(): bool
+{
+    return !empty($_SESSION['student_remember_me']) && !empty($_COOKIE[STUDENT_REMEMBER_COOKIE]);
+}
+
+function student_enforce_idle_timeout(): void
+{
+    if (empty($_SESSION['student_id'])) {
+        return;
+    }
+
+    $now = time();
+
+    if (student_has_remember_me_session()) {
+        $_SESSION['student_last_activity'] = $now;
+        return;
+    }
+
+    $last_activity = (int)($_SESSION['student_last_activity'] ?? ($_SESSION['student_session']['logged_in_at'] ?? $now));
+
+    if (($now - $last_activity) >= STUDENT_IDLE_TIMEOUT_SECONDS) {
+        student_clear_session_only();
+        header('Location: ' . BASE_URL . '/student/login.php?timeout=1');
+        exit;
+    }
+
+    $_SESSION['student_last_activity'] = $now;
 }
 
 function student_login(
@@ -182,23 +219,32 @@ function student_login(
         'username' => $username,
         'logged_in_at' => time(),
     ];
+    $_SESSION['student_last_activity'] = time();
+    $_SESSION['student_remember_me'] = false;
 }
 
-function student_logout(): void
+function student_clear_session_only(): void
 {
-    try {
-        student_delete_current_remember_token(db_connect());
-    } catch (Throwable $e) {
-        error_log('student_logout remember token cleanup failed: ' . $e->getMessage());
-        student_delete_remember_cookie();
-    }
-
     $_SESSION = [];
     if (ini_get('session.use_cookies')) {
         $params = session_get_cookie_params();
         setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
     }
     session_destroy();
+}
+
+function student_logout(bool $delete_remember_token = true): void
+{
+    if ($delete_remember_token) {
+        try {
+            student_delete_current_remember_token(db_connect());
+        } catch (Throwable $e) {
+            error_log('student_logout remember token cleanup failed: ' . $e->getMessage());
+            student_delete_remember_cookie();
+        }
+    }
+
+    student_clear_session_only();
 }
 
 /** Get current borrow cart (book ids). Max 3. */

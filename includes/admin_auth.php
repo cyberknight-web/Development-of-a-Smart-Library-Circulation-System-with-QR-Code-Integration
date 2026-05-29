@@ -5,6 +5,7 @@
 declare(strict_types=1);
 
 if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.gc_maxlifetime', (string)(30 * 24 * 60 * 60));
     session_start();
 }
 

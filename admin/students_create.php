@@ -5,6 +5,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../includes/admin_auth.php';
 require_once __DIR__ . '/../includes/admin_layout.php';
+require_once __DIR__ . '/../includes/mail_helper.php';
+require_once __DIR__ . '/../includes/password_policy.php';
 
 require_admin_login();
 
@@ -14,8 +16,11 @@ $field_errors = [
     'email' => '',
 ];
 $success_message = null;
+$warning_message = null;
 
-$name = '';
+$first_name = '';
+$middle_name = '';
+$last_name = '';
 $student_id = '';
 $course = '';
 $section = '';
@@ -23,7 +28,10 @@ $email = '';
 $username = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name'] ?? '');
+    $first_name = trim($_POST['first_name'] ?? '');
+    $middle_name = trim($_POST['middle_name'] ?? '');
+    $last_name = trim($_POST['last_name'] ?? '');
+    $name = trim(implode(' ', array_filter([$first_name, $middle_name, $last_name], static fn($part) => $part !== '')));
     $student_id = trim($_POST['student_id'] ?? '');
     $course = trim($_POST['course'] ?? '');
     $section = trim($_POST['section'] ?? '');
@@ -31,11 +39,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    if ($name === '') {
-        $errors[] = 'Name is required.';
+    if ($first_name === '') {
+        $errors[] = 'First name is required.';
+    }
+    if ($last_name === '') {
+        $errors[] = 'Last name is required.';
     }
     if ($student_id === '') {
         $errors[] = 'Student ID is required.';
+    } elseif (!preg_match('/^[A-Za-z0-9]{4}-[A-Za-z0-9]{5}$/', $student_id)) {
+        $errors[] = 'Student ID must use the format xxxx-xxxxx.';
     }
     if ($course === '') {
         $errors[] = 'Course is required.';
@@ -47,12 +60,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Email is required.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = 'Email format is invalid.';
+    } elseif (!preg_match('/^[A-Z0-9._%+\-]+@evsu\.edu\.ph$/i', $email)) {
+        $errors[] = 'Student email must be an EVSU email address, for example jasonkinth.arcillas@evsu.edu.ph.';
     }
     if ($username === '') {
         $errors[] = 'Username is required.';
     }
     if ($password === '') {
         $errors[] = 'Password is required.';
+    } elseif (!smartlibrary_is_valid_password($password)) {
+        $errors[] = smartlibrary_password_policy_message();
     }
 
     if (!$errors) {
@@ -99,8 +116,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':password_hash' => $password_hash,
             ]);
 
+            $subject = 'Smart Library - Student Account Created';
+            $body = '<p>Hello ' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . ',</p>';
+            $body .= '<p>Your Smart Library student account has been created.</p>';
+            $body .= '<p><strong>Login credentials:</strong></p>';
+            $body .= '<ul>';
+            $body .= '<li><strong>Student ID:</strong> ' . htmlspecialchars($student_id, ENT_QUOTES, 'UTF-8') . '</li>';
+            $body .= '<li><strong>Username:</strong> ' . htmlspecialchars($username, ENT_QUOTES, 'UTF-8') . '</li>';
+            $body .= '<li><strong>Password:</strong> ' . htmlspecialchars($password, ENT_QUOTES, 'UTF-8') . '</li>';
+            $body .= '</ul>';
+            $body .= '<p>Please keep these credentials secure and do not share them with anyone.</p>';
+            $body .= '<p>Thank you,<br>Smart Library</p>';
+
             $success_message = 'Student account created successfully.';
-            $name = $student_id = $course = $section = $email = $username = '';
+            if (send_mail($email, $name, $subject, $body)) {
+                $success_message .= ' Login credentials were sent to the student email.';
+            } else {
+                $warning_message = 'The student account was created, but the credentials email could not be sent. Please check the mail settings and try notifying the student manually.';
+                error_log('Student credentials email failed for student #' . $student_id . ' to ' . $email);
+            }
+
+            $first_name = $middle_name = $last_name = $student_id = $course = $section = $email = $username = '';
         } catch (PDOException $e) {
             if ($e->getCode() === '23000') {
                 $message = $e->getMessage();
@@ -154,9 +190,9 @@ admin_render_header('Create Student Account');
     </div>
 </div>
 
-<div class="row g-4">
+        <div class="row g-4">
     <!-- Form Card -->
-    <div class="col-lg-7">
+    <div class="col-12 col-md-7">
         <div class="card sl-card h-100 shadow-sm">
             <div class="card-header bg-light border-bottom-0 pt-4 pb-3">
                 <h5 class="card-title fw-semibold mb-0">
@@ -168,6 +204,14 @@ admin_render_header('Create Student Account');
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <i class="bi bi-check-circle me-2"></i>
                         <strong>Success!</strong> <?php echo htmlspecialchars($success_message, ENT_QUOTES, 'UTF-8'); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($warning_message): ?>
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Warning!</strong> <?php echo htmlspecialchars($warning_message, ENT_QUOTES, 'UTF-8'); ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <?php endif; ?>
@@ -190,15 +234,38 @@ admin_render_header('Create Student Account');
                     <div class="mb-4">
                         <h6 class="text-uppercase text-muted fw-semibold small mb-3">Personal Information</h6>
                         <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="name" class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+                            <div class="col-md-4">
+                                <label for="first_name" class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
                                 <input
                                     type="text"
                                     class="form-control"
-                                    id="name"
-                                    name="name"
-                                    placeholder="e.g., John Doe"
-                                    value="<?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>"
+                                    id="first_name"
+                                    name="first_name"
+                                    placeholder="e.g., John"
+                                    value="<?php echo htmlspecialchars($first_name, ENT_QUOTES, 'UTF-8'); ?>"
+                                    required
+                                >
+                            </div>
+                            <div class="col-md-4">
+                                <label for="middle_name" class="form-label fw-semibold">Middle Name</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="middle_name"
+                                    name="middle_name"
+                                    placeholder="e.g., Santos"
+                                    value="<?php echo htmlspecialchars($middle_name, ENT_QUOTES, 'UTF-8'); ?>"
+                                >
+                            </div>
+                            <div class="col-md-4">
+                                <label for="last_name" class="form-label fw-semibold">Last Name <span class="text-danger">*</span></label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="last_name"
+                                    name="last_name"
+                                    placeholder="e.g., Dela Cruz"
+                                    value="<?php echo htmlspecialchars($last_name, ENT_QUOTES, 'UTF-8'); ?>"
                                     required
                                 >
                             </div>
@@ -209,7 +276,9 @@ admin_render_header('Create Student Account');
                                     class="form-control<?php echo $field_errors['student_id'] ? ' is-invalid' : ''; ?>"
                                     id="student_id"
                                     name="student_id"
-                                    placeholder="e.g., 2024001"
+                                    placeholder="e.g., 2024-00001"
+                                    pattern="^[A-Za-z0-9]{4}-[A-Za-z0-9]{5}$"
+                                    title="Use the format xxxx-xxxxx, for example 2024-00001"
                                     value="<?php echo htmlspecialchars($student_id, ENT_QUOTES, 'UTF-8'); ?>"
                                     required
                                 >
@@ -248,7 +317,9 @@ admin_render_header('Create Student Account');
                                     class="form-control<?php echo $field_errors['email'] ? ' is-invalid' : ''; ?>"
                                     id="email"
                                     name="email"
-                                    placeholder="e.g., student@example.com"
+                                    placeholder="e.g., jasonkinth.arcillas@evsu.edu.ph"
+                                    pattern="^[A-Za-z0-9._%+\-]+@evsu\.edu\.ph$"
+                                    title="Use an EVSU email address, for example jasonkinth.arcillas@evsu.edu.ph"
                                     value="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>"
                                     required
                                 >
@@ -279,20 +350,33 @@ admin_render_header('Create Student Account');
                             </div>
                             <div class="col-md-6">
                                 <label for="password" class="form-label fw-semibold">Password <span class="text-danger">*</span></label>
-                                <input
-                                    type="password"
-                                    class="form-control"
-                                    id="password"
-                                    name="password"
-                                    placeholder="Enter a secure password"
-                                    required
-                                >
+                                <div class="input-group">
+                                    <input
+                                        type="password"
+                                        class="form-control"
+                                        id="password"
+                                        name="password"
+                                        placeholder="Enter a secure password"
+                                        minlength="8"
+                                        pattern="(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}"
+                                        title="<?php echo htmlspecialchars(smartlibrary_password_policy_message(), ENT_QUOTES, 'UTF-8'); ?>"
+                                        required
+                                    >
+                                </div>
+                                <div class="form-check mt-2">
+                                    <input type="checkbox" class="form-check-input" id="showPasswordCheck" onclick="myFunction()">
+                                    <label class="form-check-label" for="showPasswordCheck">
+                                        Show Password
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <small class="text-muted d-block mt-2">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    <?php echo htmlspecialchars(smartlibrary_password_policy_message(), ENT_QUOTES, 'UTF-8'); ?>
+                                </small>
                             </div>
                         </div>
-                        <small class="text-muted d-block mt-2">
-                            <i class="bi bi-info-circle me-1"></i>
-                            Ensure the password is strong and unique for security.
-                        </small>
                     </div>
 
                     <hr class="my-4">
@@ -312,7 +396,7 @@ admin_render_header('Create Student Account');
     </div>
 
     <!-- Recent Students Card -->
-    <div class="col-lg-5">
+    <div class="col-12 col-md-5">
         <div class="card sl-card h-100 shadow-sm">
             <div class="card-header bg-light border-bottom-0 pt-4 pb-3">
                 <h5 class="card-title fw-semibold mb-0">
@@ -368,9 +452,11 @@ admin_render_header('Create Student Account');
                             <?php else: ?>
                                 <tr>
                                     <td colspan="3" class="text-center text-muted py-4">
-                                        <i class="bi bi-inbox" style="font-size: 2rem; opacity: 0.3;"></i>
-                                        <div class="mt-2">
-                                            <?php echo $search_students !== '' ? 'No students match your search.' : 'No students created yet.'; ?>
+                                        <div class="d-flex flex-column align-items-center justify-content-center h-100">
+                                            <i class="bi bi-inbox" style="font-size: 2rem; opacity: 0.3;"></i>
+                                            <div class="mt-2">
+                                                <?php echo $search_students !== '' ? 'No students match your search.' : 'No students created yet.'; ?>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -382,6 +468,16 @@ admin_render_header('Create Student Account');
         </div>
     </div>
 </div>
+
+<script>
+function myFunction() {
+    var passwordInput = document.getElementById('password');
+    var checkbox = document.getElementById('showPasswordCheck');
+    if (passwordInput && checkbox) {
+        passwordInput.type = checkbox.checked ? 'text' : 'password';
+    }
+}
+</script>
 
 <?php
 admin_render_footer();
